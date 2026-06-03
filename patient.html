@@ -174,12 +174,10 @@ function rToday(done, note) {
   var h = "";
   for (var i=0;i<TO.length;i++) {
     var on = done.indexOf(TO[i])>=0;
-    var cls = on ? "ci on" : "ci";
-    var cbcls = on ? "cb2 on" : "cb2";
-    var chk = on ? "&#x2713;" : "";
-    h += "<div class=\"" + cls + "\"><div class=\"" + cbcls + "\">" + chk + "</div>" + TO[i] + "</div>";
+    if (!on) continue;
+    h += "<div class=\"ci on\"><div class=\"cb2 on\">&#x2713;</div>" + TO[i] + "</div>";
   }
-  if (note) h += "<div style=\"margin-top:8px;padding:10px 12px;background:#fff3e0;border-radius:8px;border-left:4px solid #f4a35a;font-size:.88rem;line-height:1.65;color:#5a3a1a;\">" + br(note) + "</div>";
+  if (note) h += "<div style=\"margin-top:8px;padding:13px 15px;background:linear-gradient(135deg,#e8f5ee,#f0faf5);border:2px solid #a5d6b0;border-radius:0 14px 14px 14px;font-size:.92rem;line-height:1.7;color:#1a4a2e;\">" + br(note) + "</div>";
   el.innerHTML = h;
 }
 function rNext(plan) {
