@@ -50,21 +50,16 @@
   .next-check.off{background:#fff;border:2px solid var(--orange-border);}
   .stamp{text-align:center;padding:18px;color:var(--muted);font-size:.82rem;}
   .stamp .big{font-size:2.2rem;display:block;margin-bottom:4px;}
-  .loading-box{text-align:center;padding:50px 20px;color:var(--muted);}
-  .spin{display:inline-block;width:28px;height:28px;border:3px solid var(--orange-border);border-top-color:var(--orange);border-radius:50%;animation:spin .7s linear infinite;margin-bottom:8px;}
-  @keyframes spin{to{transform:rotate(360deg);}}
-  .err-box{background:#fde8e8;border:2px solid #e05050;border-radius:12px;padding:18px;text-align:center;color:#a02020;font-size:.88rem;line-height:1.7;}
   .warn-box{background:#fff8e1;border:2px solid #ffcc02;border-radius:12px;padding:14px 16px;font-size:.82rem;color:#5a4000;line-height:1.7;text-align:center;}
+  .err-box{background:#fde8e8;border:2px solid #e05050;border-radius:12px;padding:18px;text-align:center;color:#a02020;font-size:.88rem;line-height:1.7;}
 </style>
 </head>
 <body>
 <div class="hero">
   <h1>🦷 わたしの歯みがきノート</h1>
-  <p class="sub" id="heroSub">よみこみちゅう…</p>
+  <p class="sub" id="heroSub">　</p>
 </div>
-<div class="container" id="app">
-  <div class="loading-box"><div class="spin"></div><br>データをよみこんでいます</div>
-</div>
+<div class="container" id="app"></div>
 
 <script>
 const GAS_URL = "https://script.google.com/macros/s/AKfycbwyi2C3UCiQfQ6zzc9BhrZkZGTouMlLct6UvFOy4ch3AcEFMTAoOcfHAfwtTOQlOy37/exec";
@@ -104,55 +99,28 @@ const NEXT_OPTIONS  = ["歯のクリーニング","むし歯の治療","むし�
 async function init() {
   const pid = new URLSearchParams(location.search).get("patient");
   if (!pid) { renderError("URLにカルテ番号が含まれていません。<br>QRコードから読み取ってください。"); return; }
-  document.getElementById("heroSub").textContent = "読みこみちゅう…";
+  document.getElementById("heroSub").textContent = "カルテ番号: " + pid;
 
   let data = null;
-
-  // タイムアウト付きfetch（8秒）
   try {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 8000);
-    const res = await fetch(GAS_URL + "?action=getPatient&patientId=" + encodeURIComponent(pid), {signal: controller.signal});
-    clearTimeout(timer);
+    const res = await fetch(GAS_URL + "?action=getPatient&patientId=" + encodeURIComponent(pid));
     data = await res.json();
   } catch(e) {
-    // タイムアウト or ネットワークエラー
     data = null;
   }
 
-  if (!data || data.error || !data.patient) {
-    // GASに繋がらない場合は「まだ記録なし」として表示
-    document.getElementById("heroSub").textContent = "カルテ番号: " + pid;
-    document.getElementById("app").innerHTML = `
-      <div class="warn-box">
-        🦷 データを読み込めませんでした。<br>
-        しばらくしてからもう一度お試しください。
-      </div>
-      <div class="card">
-        <div class="card-head">🦷 はのようす</div>
-        <div class="card-body">
-          <div class="teeth-wrap" id="teethWrap">
-            <img class="teeth-img" id="teethImg" src="${TEETH_IMG_SRC}" alt="歯式図">
-            <div class="teeth-overlay" id="teethOverlay"></div>
-          </div>
-          <div class="legend-row" id="legendRow"></div>
-        </div>
-      </div>
-    `;
-    renderTeethOverlay({});
+  if (!data || !data.patient) {
+    renderError("データを読み込めませんでした。<br>しばらくしてから再度お試しください。");
     return;
   }
-
   render(data.patient, data.latestRecord);
 }
 
-function formatDate(dateStr) {
-  if (!dateStr) return {yyyy:"",mm:"",dd:""};
-  const parts = dateStr.toString().split("-");
-  if (parts.length === 3) return {yyyy:parts[0], mm:String(Number(parts[1])), dd:String(Number(parts[2]))};
-  const d = new Date(dateStr);
-  if (isNaN(d.getTime())) return {yyyy:"",mm:"",dd:""};
-  return {yyyy:d.getFullYear(), mm:d.getMonth()+1, dd:d.getDate()};
+function formatDate(s) {
+  if (!s) return {yyyy:"",mm:"",dd:""};
+  const p = s.toString().split("T")[0].split("-");
+  if (p.length===3) return {yyyy:p[0], mm:String(Number(p[1])), dd:String(Number(p[2]))};
+  return {yyyy:"",mm:"",dd:""};
 }
 
 function render(p, rec) {
@@ -166,14 +134,14 @@ function render(p, rec) {
         <div class="pat-badge">
           <div class="pat-avatar">${(p.name||"?")[0]}</div>
           <div class="pat-info"><h2>${p.name}</h2><p>カルテ #${p.patientId}</p></div>
-          ${rec && dt.yyyy ? `<div class="visit-chip"><div class="vm">${dt.mm}月</div><div class="vd">${dt.dd}日</div><div class="vm">${dt.yyyy}</div></div>` : ""}
+          ${dt.yyyy ? `<div class="visit-chip"><div class="vm">${dt.mm}月</div><div class="vd">${dt.dd}日</div><div class="vm">${dt.yyyy}</div></div>` : ""}
         </div>
       </div>
     </div>
     <div class="card">
       <div class="card-head">🦷 はのようす</div>
       <div class="card-body">
-        <div class="teeth-wrap" id="teethWrap">
+        <div class="teeth-wrap">
           <img class="teeth-img" id="teethImg" src="${TEETH_IMG_SRC}" alt="歯式図">
           <div class="teeth-overlay" id="teethOverlay"></div>
         </div>
@@ -216,57 +184,47 @@ function renderTeethOverlay(td) {
   function place() {
     overlay.innerHTML = "";
     const w = img.offsetWidth, h = img.offsetHeight;
-    if (w === 0 || h === 0) { setTimeout(place, 100); return; }
+    if (!w || !h) { setTimeout(place, 100); return; }
     Object.entries(TEETH_POS).forEach(([num, pos]) => {
-      const s = td[num];
-      if (!s) return;
+      const s = td[num]; if (!s) return;
       const c = STATUS_COLOR[s];
       const el = document.createElement("div");
       el.className = "tooth-marker";
       el.setAttribute("data-s", s);
-      el.style.left        = (pos.cx/100*w) + "px";
-      el.style.top         = (pos.cy/100*h) + "px";
-      el.style.width       = (pos.r/100*w*2) + "px";
-      el.style.height      = (pos.r/100*w*2) + "px";
-      el.style.background  = c.bg;
+      el.style.left = (pos.cx/100*w)+"px";
+      el.style.top  = (pos.cy/100*h)+"px";
+      el.style.width = el.style.height = (pos.r/100*w*2)+"px";
+      el.style.background = c.bg;
       el.style.borderColor = c.border;
       overlay.appendChild(el);
     });
     const used = [...new Set(Object.values(td))];
-    legend.innerHTML = used.map(s => {
-      const c = STATUS_COLOR[s];
-      return `<div class="leg"><div class="leg-dot" style="background:${c.dot}"></div>${c.label}</div>`;
-    }).join("") || "";
+    legend.innerHTML = used.map(s => `<div class="leg"><div class="leg-dot" style="background:${STATUS_COLOR[s].dot}"></div>${STATUS_COLOR[s].label}</div>`).join("");
   }
-  if (img.complete && img.naturalWidth > 0) place(); else img.onload = place;
+  img.complete && img.naturalWidth ? place() : (img.onload = place);
   window.addEventListener("resize", place);
 }
 
 function renderToday(note, done) {
-  const el = document.getElementById("todayList");
-  if (!el) return;
+  const el = document.getElementById("todayList"); if (!el) return;
   TODAY_OPTIONS.forEach(opt => {
     const on = done.includes(opt);
-    const d = document.createElement("div");
-    d.className = "chk-item";
+    const d = document.createElement("div"); d.className = "chk-item";
     d.innerHTML = `<div class="chk-box ${on?"on":""}">${on?"✓":""}</div><span>${opt}</span>`;
     el.appendChild(d);
   });
   if (note) {
     const d = document.createElement("div");
     d.style.cssText = "margin-top:8px;padding:10px 12px;background:#fff3e0;border-radius:8px;border-left:4px solid #f4a35a;font-size:.88rem;line-height:1.65;color:#5a3a1a;";
-    d.innerHTML = nl2br(note);
-    el.appendChild(d);
+    d.innerHTML = nl2br(note); el.appendChild(d);
   }
 }
 
 function renderNext(plan) {
-  const el = document.getElementById("nextList");
-  if (!el) return;
+  const el = document.getElementById("nextList"); if (!el) return;
   NEXT_OPTIONS.forEach(opt => {
     const on = plan.includes(opt);
-    const d = document.createElement("div");
-    d.className = "next-item";
+    const d = document.createElement("div"); d.className = "next-item";
     d.innerHTML = `<div class="next-check ${on?"on":"off"}">${on?"✓":""}</div><span>${opt}</span>`;
     el.appendChild(d);
   });
@@ -278,6 +236,7 @@ function renderError(msg) {
 }
 function nl2br(s) { return (s||"").replace(/
 /g,"<br>"); }
+
 init();
 </script>
 </body>
