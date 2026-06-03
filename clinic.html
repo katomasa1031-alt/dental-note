@@ -432,6 +432,7 @@ let currentRecord = {
   treatmentNote: "",
   clinicMessage: "",
   nextPlan:      [],
+  todayDone:     [],
   date:          today()
 };
 let selectedTooth = null;
@@ -511,8 +512,9 @@ async function selectPatient(pid) {
     treatmentNote: rec.treatmentNote || "",
     clinicMessage: rec.clinicMessage || "",
     nextPlan:      rec.nextPlan      || [],
+    todayDone:     rec.todayDone     || [],
     date:          rec.date          || today()
-  } : { teethData:{}, treatmentNote:"", clinicMessage:"", nextPlan:[], date:today() };
+  } : { teethData:{}, treatmentNote:"", clinicMessage:"", nextPlan:[], todayDone:[], date:today() };
 
   renderMain(p);
 }
@@ -554,7 +556,11 @@ function renderMain(p) {
         <input type="date" id="recDate" value="${currentRecord.date}">
       </div>
       <div class="form-group">
-        <label>治療内容</label>
+        <label>きょうおこなったのは</label>
+        <div class="checklist" id="todayDoneList"></div>
+      </div>
+      <div class="form-group">
+        <label>治療内容（詳細メモ）</label>
         <textarea id="treatmentNote" placeholder="例: 右下6番の虫歯を削って詰め物をしました。">${currentRecord.treatmentNote}</textarea>
       </div>
     </div>
@@ -576,6 +582,7 @@ function renderMain(p) {
 
   renderTeeth();
   renderNextPlan();
+  renderTodayDoneList();
 }
 
 // ------------------------------------------------------------
@@ -670,6 +677,27 @@ function renderNextPlanList() {
 }
 function renderNextPlan() { renderNextPlanList(); }
 
+const TODAY_OPTIONS_CLINIC = ["歯のクリーニングです","むし歯の治療です","むし歯の予防（フッ素・シーラント）です"];
+
+function renderTodayDoneList() {
+  const el = document.getElementById("todayDoneList");
+  if (!el) return;
+  el.innerHTML = TODAY_OPTIONS_CLINIC.map(opt => {
+    const checked = currentRecord.todayDone.includes(opt);
+    return `<label class="check-item ${checked ? 'checked' : ''}">
+      <input type="checkbox" ${checked ? 'checked' : ''} onchange="toggleToday('${opt}', this.checked)">
+      <div class="check-mark">${checked ? '✓' : ''}</div>
+      ${opt}
+    </label>`;
+  }).join("");
+}
+
+function toggleToday(opt, val) {
+  if (val) { if (!currentRecord.todayDone.includes(opt)) currentRecord.todayDone.push(opt); }
+  else { currentRecord.todayDone = currentRecord.todayDone.filter(x => x !== opt); }
+  renderTodayDoneList();
+}
+
 function togglePlan(opt, val) {
   if (val) { if (!currentRecord.nextPlan.includes(opt)) currentRecord.nextPlan.push(opt); }
   else { currentRecord.nextPlan = currentRecord.nextPlan.filter(x => x !== opt); }
@@ -693,7 +721,8 @@ async function saveRecord() {
       teethData:     currentRecord.teethData,
       treatmentNote: currentRecord.treatmentNote,
       clinicMessage: currentRecord.clinicMessage,
-      nextPlan:      currentRecord.nextPlan
+      nextPlan:      currentRecord.nextPlan,
+      todayDone:     currentRecord.todayDone
     });
     if (res.error) throw new Error(res.error);
     toast("✅ 保存しました");
