@@ -230,8 +230,8 @@ function renderError(msg) {
   document.getElementById("heroSub").textContent = "エラー";
   document.getElementById("app").innerHTML = `<div class="err-box">${msg}</div>`;
 }
-function nl2br(s) { return (s||"").replace(/
-/g,"<br>"); }
+function nl2br(s) { return (s||"").split("
+").join("<br>"); }
 init();
 </script>
 </body>
