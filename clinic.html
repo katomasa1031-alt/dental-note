@@ -5,326 +5,106 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>歯科電子治療ノート｜医院管理画面</title>
 <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"><\/script>
 <style>
   :root {
-    --bg:       #f0ede8;
-    --surface:  #faf8f5;
-    --card:     #ffffff;
-    --border:   #d8d0c5;
-    --text:     #1a1714;
-    --muted:    #7a7068;
-    --accent:   #2d6a4f;
-    --accent2:  #e76f51;
-    --danger:   #c1440e;
-    --cavity:   #e63946;
-    --treated:  #2d6a4f;
-    --watch:    #f4a261;
-    --crown:    #457b9d;
-    --missing:  #6b7280;
-    --r: 10px;
+    --bg:#f0ede8;--surface:#faf8f5;--card:#ffffff;--border:#d8d0c5;
+    --text:#1a1714;--muted:#7a7068;--accent:#2d6a4f;--accent2:#e76f51;
+    --danger:#c1440e;--r:10px;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: 'Zen Kaku Gothic New', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Zen Kaku Gothic New',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+  header{background:var(--accent);color:#fff;padding:14px 24px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 8px rgba(0,0,0,.15);}
+  header h1{font-size:1.1rem;font-weight:700;letter-spacing:.05em;}
+  header small{font-size:.75rem;opacity:.75;}
+  .layout{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 54px);}
+  .sidebar{background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;}
+  .sidebar-head{padding:16px;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:10px;}
+  .sidebar-head h2{font-size:.85rem;color:var(--muted);font-weight:500;}
+  .search-box{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:6px 10px;}
+  .search-box input{border:none;outline:none;background:transparent;font-family:inherit;font-size:.9rem;width:100%;color:var(--text);}
+  .btn-add{display:flex;align-items:center;gap:6px;justify-content:center;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:8px 12px;font-family:inherit;font-size:.85rem;font-weight:700;cursor:pointer;transition:opacity .15s;}
+  .btn-add:hover{opacity:.85;}
+  .patient-list{overflow-y:auto;flex:1;}
+  .patient-item{padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .12s;display:flex;flex-direction:column;gap:2px;}
+  .patient-item:hover{background:#ede8e0;}
+  .patient-item.active{background:#d8ede3;border-left:3px solid var(--accent);}
+  .patient-item .pid{font-family:'DM Mono',monospace;font-size:.75rem;color:var(--muted);}
+  .patient-item .pname{font-weight:700;font-size:.95rem;}
+  .patient-item .plast{font-size:.75rem;color:var(--muted);}
+  .main{padding:24px;overflow-y:auto;display:flex;flex-direction:column;gap:20px;}
+  .empty-state{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:var(--muted);}
+  .patient-header{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px 20px;display:flex;align-items:center;gap:16px;}
+  .patient-header .avatar{width:48px;height:48px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.3rem;font-weight:700;flex-shrink:0;}
+  .patient-header .info h2{font-size:1.1rem;}
+  .patient-header .info p{font-size:.8rem;color:var(--muted);margin-top:2px;}
+  .patient-header .actions{margin-left:auto;display:flex;gap:8px;}
+  .btn{padding:7px 14px;border-radius:7px;border:1.5px solid var(--border);font-family:inherit;font-size:.82rem;font-weight:700;cursor:pointer;transition:all .15s;background:var(--card);color:var(--text);}
+  .btn:hover{border-color:var(--accent);color:var(--accent);}
+  .btn.primary{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .btn.primary:hover{opacity:.85;}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px;}
+  .card-title{font-size:.8rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px;display:flex;align-items:center;gap:6px;}
 
-  /* ── ヘッダー ── */
-  header {
-    background: var(--accent);
-    color: #fff;
-    padding: 14px 24px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,.15);
-  }
-  header svg { flex-shrink: 0; }
-  header h1 { font-size: 1.1rem; font-weight: 700; letter-spacing: .05em; }
-  header small { font-size: .75rem; opacity: .75; }
-
-  /* ── レイアウト ── */
-  .layout {
-    display: grid;
-    grid-template-columns: 280px 1fr;
-    min-height: calc(100vh - 54px);
-  }
-
-  /* ── サイドバー（患者リスト）── */
-  .sidebar {
-    background: var(--surface);
-    border-right: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-  }
-  .sidebar-head {
-    padding: 16px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  .sidebar-head h2 { font-size: .85rem; color: var(--muted); font-weight: 500; }
-  .search-box {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 6px 10px;
-  }
-  .search-box input {
-    border: none; outline: none; background: transparent;
-    font-family: inherit; font-size: .9rem; width: 100%; color: var(--text);
-  }
-  .btn-add {
-    display: flex; align-items: center; gap: 6px; justify-content: center;
-    background: var(--accent); color: #fff;
-    border: none; border-radius: 8px; padding: 8px 12px;
-    font-family: inherit; font-size: .85rem; font-weight: 700; cursor: pointer;
-    transition: opacity .15s;
-  }
-  .btn-add:hover { opacity: .85; }
-  .patient-list { overflow-y: auto; flex: 1; }
-  .patient-item {
-    padding: 12px 16px;
-    border-bottom: 1px solid var(--border);
-    cursor: pointer;
-    transition: background .12s;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-  .patient-item:hover { background: #ede8e0; }
-  .patient-item.active { background: #d8ede3; border-left: 3px solid var(--accent); }
-  .patient-item .pid { font-family: 'DM Mono', monospace; font-size: .75rem; color: var(--muted); }
-  .patient-item .pname { font-weight: 700; font-size: .95rem; }
-  .patient-item .plast { font-size: .75rem; color: var(--muted); }
-
-  /* ── メインコンテンツ ── */
-  .main {
-    padding: 24px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-  .empty-state {
-    flex: 1; display: flex; flex-direction: column;
-    align-items: center; justify-content: center; gap: 12px;
-    color: var(--muted);
-  }
-  .empty-state svg { opacity: .3; }
-  .empty-state p { font-size: .9rem; }
-
-  /* ── 患者ヘッダー ── */
-  .patient-header {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--r);
-    padding: 16px 20px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
-  .patient-header .avatar {
-    width: 48px; height: 48px;
-    border-radius: 50%;
-    background: var(--accent);
-    color: #fff;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.3rem; font-weight: 700; flex-shrink: 0;
-  }
-  .patient-header .info h2 { font-size: 1.1rem; }
-  .patient-header .info p  { font-size: .8rem; color: var(--muted); margin-top: 2px; }
-  .patient-header .actions { margin-left: auto; display: flex; gap: 8px; }
-  .btn {
-    padding: 7px 14px; border-radius: 7px; border: 1.5px solid var(--border);
-    font-family: inherit; font-size: .82rem; font-weight: 700; cursor: pointer;
-    transition: all .15s; background: var(--card); color: var(--text);
-  }
-  .btn:hover { border-color: var(--accent); color: var(--accent); }
-  .btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
-  .btn.primary:hover { opacity: .85; }
-  .btn.danger { background: var(--danger); color: #fff; border-color: var(--danger); }
-
-  /* ── 歯式カード ── */
-  .card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--r);
-    padding: 20px;
-  }
-  .card-title {
-    font-size: .8rem; font-weight: 700; color: var(--muted);
-    text-transform: uppercase; letter-spacing: .08em;
-    margin-bottom: 14px;
-    display: flex; align-items: center; gap: 6px;
-  }
-
-  /* 歯式 */
-  .teeth-grid {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-  }
-  .teeth-row {
-    display: flex;
-    align-items: center;
-    gap: 3px;
-  }
-  .teeth-label {
-    font-size: .65rem; color: var(--muted);
-    width: 22px; text-align: center;
-    font-family: 'DM Mono', monospace;
-  }
-  .jaw-divider {
-    width: 100%; height: 1px;
-    background: var(--border);
-    margin: 4px 0;
-    position: relative;
-  }
-  .jaw-divider::after {
-    content: '上 ↑  ↓ 下';
-    position: absolute; left: 50%; transform: translateX(-50%);
-    background: var(--card); padding: 0 8px;
-    font-size: .65rem; color: var(--muted); top: -8px;
-    white-space: nowrap;
-  }
-  .tooth {
-    width: 30px; height: 36px;
-    border: 1.5px solid var(--border);
-    border-radius: 5px;
-    cursor: pointer;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    font-size: .6rem; font-weight: 700;
-    transition: all .12s;
-    position: relative;
-    background: var(--card);
-    color: var(--muted);
-    user-select: none;
-  }
-  .tooth:hover { border-color: var(--accent); transform: scale(1.08); z-index: 2; }
-  .tooth.deciduous { opacity: .6; font-style: italic; }
-  .tooth[data-status="cavity"]  { background: #fde8e8; border-color: var(--cavity);  color: var(--cavity); }
-  .tooth[data-status="treated"] { background: #e8f5ee; border-color: var(--treated); color: var(--treated); }
-  .tooth[data-status="watch"]   { background: #fef3e2; border-color: var(--watch);   color: #a05a00; }
-  .tooth[data-status="crown"]   { background: #e4f0f8; border-color: var(--crown);   color: var(--crown); }
-  .tooth[data-status="missing"] { background: #f3f4f6; border-color: var(--missing); color: var(--missing); opacity:.5; }
-  .tooth-num { font-size: .55rem; }
-  .tooth-icon { font-size: .95rem; line-height:1; }
+  /* 歯式SVGエリア */
+  .teeth-chart-wrap{display:flex;justify-content:center;padding:10px 0;}
+  #teethChartSVG{overflow:visible;}
 
   /* 凡例 */
-  .legend {
-    display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;
-  }
-  .legend-item {
-    display: flex; align-items: center; gap: 4px;
-    font-size: .75rem; color: var(--muted);
-  }
-  .legend-dot {
-    width: 10px; height: 10px; border-radius: 2px;
-  }
+  .legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;justify-content:center;}
+  .leg{display:flex;align-items:center;gap:5px;font-size:.75rem;color:var(--muted);}
+  .leg-dot{width:12px;height:12px;border-radius:50%;border:1px solid rgba(0,0,0,.1);}
 
-  /* ── フォーム ── */
-  .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
-  .form-group label { font-size: .8rem; font-weight: 700; color: var(--muted); }
-  textarea, input[type="text"], input[type="date"] {
-    font-family: inherit; font-size: .9rem; color: var(--text);
-    border: 1.5px solid var(--border); border-radius: 8px;
-    padding: 8px 12px; background: var(--surface);
-    outline: none; transition: border-color .15s;
-  }
-  textarea { resize: vertical; min-height: 80px; }
-  textarea:focus, input:focus { border-color: var(--accent); }
+  /* フォーム */
+  .form-group{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;}
+  .form-group label{font-size:.8rem;font-weight:700;color:var(--muted);}
+  textarea,input[type="text"],input[type="date"]{font-family:inherit;font-size:.9rem;color:var(--text);border:1.5px solid var(--border);border-radius:8px;padding:8px 12px;background:var(--surface);outline:none;transition:border-color .15s;}
+  textarea{resize:vertical;min-height:80px;}
+  textarea:focus,input:focus{border-color:var(--accent);}
+  .checklist{display:flex;flex-direction:column;gap:6px;}
+  .check-item{display:flex;align-items:center;gap:10px;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);cursor:pointer;font-size:.88rem;transition:all .12s;}
+  .check-item:hover{border-color:var(--accent);}
+  .check-item.checked{background:#e8f5ee;border-color:#2d9c63;color:#1a4a2e;font-weight:700;}
+  .check-item input[type="checkbox"]{display:none;}
+  .check-mark{width:18px;height:18px;border-radius:4px;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .check-item.checked .check-mark{background:#2d9c63;border-color:#2d9c63;color:#fff;}
 
-  /* チェックボックスリスト（次回予定）*/
-  .checklist { display: flex; flex-direction: column; gap: 6px; }
-  .check-item {
-    display: flex; align-items: center; gap: 10px;
-    padding: 8px 12px; border: 1.5px solid var(--border);
-    border-radius: 8px; background: var(--surface); cursor: pointer;
-    font-size: .88rem; transition: all .12s;
-  }
-  .check-item:hover { border-color: var(--accent); }
-  .check-item.checked { background: #e8f5ee; border-color: var(--treated); color: var(--treated); font-weight: 700; }
-  .check-item input[type="checkbox"] { display: none; }
-  .check-mark { width: 18px; height: 18px; border-radius: 4px; border: 1.5px solid var(--border); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-  .check-item.checked .check-mark { background: var(--treated); border-color: var(--treated); color: #fff; }
-
-  /* ── ポップアップ ── */
-  .overlay {
-    display: none; position: fixed; inset: 0;
-    background: rgba(0,0,0,.45); z-index: 100;
-    align-items: center; justify-content: center;
-  }
-  .overlay.open { display: flex; }
-  .popup {
-    background: var(--card); border-radius: 14px;
-    padding: 24px; width: 360px; max-width: 95vw;
-    box-shadow: 0 12px 40px rgba(0,0,0,.25);
-  }
-  .popup h3 { font-size: 1rem; margin-bottom: 16px; }
-  .popup-footer { display: flex; gap: 8px; margin-top: 16px; justify-content: flex-end; }
+  /* ポップアップ */
+  .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;align-items:center;justify-content:center;}
+  .overlay.open{display:flex;}
+  .popup{background:var(--card);border-radius:14px;padding:24px;width:360px;max-width:95vw;box-shadow:0 12px 40px rgba(0,0,0,.25);}
+  .popup h3{font-size:1rem;margin-bottom:16px;}
+  .popup-footer{display:flex;gap:8px;margin-top:16px;justify-content:flex-end;}
 
   /* 歯ステータス選択 */
-  .tooth-status-grid { display: flex; flex-direction: column; gap: 8px; }
-  .status-btn {
-    padding: 10px 14px; border-radius: 8px; border: 1.5px solid var(--border);
-    font-family: inherit; font-size: .9rem; font-weight: 700; cursor: pointer;
-    text-align: left; background: var(--surface); display: flex; align-items: center; gap: 10px;
-    transition: all .12s;
-  }
-  .status-btn:hover { border-color: var(--accent); }
-  .status-btn.s-none    { }
-  .status-btn.s-cavity  { color: var(--cavity);  background: #fde8e8; border-color: var(--cavity); }
-  .status-btn.s-treated { color: var(--treated); background: #e8f5ee; border-color: var(--treated); }
-  .status-btn.s-watch   { color: #a05a00;        background: #fef3e2; border-color: var(--watch); }
-  .status-btn.s-crown   { color: var(--crown);   background: #e4f0f8; border-color: var(--crown); }
-  .status-btn.s-missing { color: var(--missing); background: #f3f4f6; border-color: var(--missing); }
+  .status-btn{padding:10px 14px;border-radius:8px;border:1.5px solid var(--border);font-family:inherit;font-size:.9rem;font-weight:700;cursor:pointer;text-align:left;background:var(--surface);display:flex;align-items:center;gap:10px;transition:all .12s;margin-bottom:6px;}
+  .status-btn:hover{border-color:var(--accent);}
+  .status-btn.s-clear   {}
+  .status-btn.s-cavity  {color:#c03030;background:#fde8e8;border-color:#e24b4a;}
+  .status-btn.s-treated {color:#0f6e56;background:#e8f5ee;border-color:#1d9e75;}
+  .status-btn.s-watch   {color:#ba7517;background:#fef3e2;border-color:#ef9f27;}
+  .status-btn.s-filling {color:#5a3faa;background:#f0ebff;border-color:#8b6fd4;}
+  .status-btn.s-crown   {color:#185fa5;background:#e4f0f8;border-color:#378add;}
 
   /* QRポップアップ */
-  #qrPopup .popup { width: 300px; text-align: center; }
-  #qrcode { display: inline-block; margin: 16px auto; }
-  #qrcode img { border: 1px solid var(--border); border-radius: 8px; }
+  #qrPopup .popup{width:300px;text-align:center;}
+  #qrcode{display:inline-block;margin:16px auto;}
+
+  /* 患者追加ポップアップ */
+  #addPatientPopup .popup{width:380px;}
 
   /* トースト */
-  #toast {
-    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
-    background: #1a1714; color: #fff; padding: 10px 20px; border-radius: 100px;
-    font-size: .85rem; opacity: 0; pointer-events: none;
-    transition: opacity .3s; z-index: 999;
-  }
-  #toast.show { opacity: 1; }
-
-  /* ローディング */
-  .spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* 患者追加フォーム */
-  #addPatientPopup .popup { width: 380px; }
+  #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1a1714;color:#fff;padding:10px 20px;border-radius:100px;font-size:.85rem;opacity:0;pointer-events:none;transition:opacity .3s;z-index:999;}
+  #toast.show{opacity:1;}
 </style>
 </head>
 <body>
-
-<!-- ヘッダー -->
 <header>
-  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-    <path d="M12 2C8 2 5 5 5 8c0 2.5 1 5 2 7l1 4h2l1-3 1 3h2l1-4c1-2 2-4.5 2-7 0-3-3-6-7-6z"/>
-  </svg>
-  <div>
-    <h1>歯科電子治療ノート</h1>
-    <small>医院管理画面</small>
-  </div>
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8 2 5 5 5 8c0 2.5 1 5 2 7l1 4h2l1-3 1 3h2l1-4c1-2 2-4.5 2-7 0-3-3-6-7-6z"/></svg>
+  <div><h1>歯科電子治療ノート</h1><small>医院管理画面</small></div>
 </header>
 
 <div class="layout">
-  <!-- サイドバー -->
   <aside class="sidebar">
     <div class="sidebar-head">
       <h2>患者一覧</h2>
@@ -337,17 +117,12 @@
         患者を追加
       </button>
     </div>
-    <div class="patient-list" id="patientList">
-      <div style="padding:20px;text-align:center;color:var(--muted);font-size:.85rem;">読み込み中…</div>
-    </div>
+    <div class="patient-list" id="patientList"><div style="padding:20px;text-align:center;color:var(--muted);font-size:.85rem;">読み込み中…</div></div>
   </aside>
 
-  <!-- メイン -->
   <main class="main" id="mainArea">
     <div class="empty-state">
-      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
-        <path d="M12 2C8 2 5 5 5 8c0 2.5 1 5 2 7l1 4h2l1-3 1 3h2l1-4c1-2 2-4.5 2-7 0-3-3-6-7-6z"/>
-      </svg>
+      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M12 2C8 2 5 5 5 8c0 2.5 1 5 2 7l1 4h2l1-3 1 3h2l1-4c1-2 2-4.5 2-7 0-3-3-6-7-6z"/></svg>
       <p>患者を選択してください</p>
     </div>
   </main>
@@ -356,37 +131,19 @@
 <!-- 歯ステータス選択ポップアップ -->
 <div class="overlay" id="toothPopup">
   <div class="popup">
-    <h3 id="toothPopupTitle">歯の状態を選択</h3>
-    <div class="tooth-status-grid">
-      <button class="status-btn s-none"    onclick="setToothStatus(null)">⬜ 正常（クリア）</button>
-      <button class="status-btn s-cavity"  onclick="setToothStatus('cavity')">🔴 虫歯</button>
-      <button class="status-btn s-treated" onclick="setToothStatus('treated')">✅ 治療済み</button>
-      <button class="status-btn s-watch"   onclick="setToothStatus('watch')">⚠️ 要注意</button>
-      <button class="status-btn s-crown"   onclick="setToothStatus('crown')">👑 被せ物・銀歯</button>
-      <button class="status-btn s-missing" onclick="setToothStatus('missing')">✕ 欠損・抜歯</button>
-    </div>
-    <div class="popup-footer">
-      <button class="btn" onclick="closePopup('toothPopup')">キャンセル</button>
-    </div>
+    <h3 id="toothPopupTitle">部位を選択</h3>
+    <div id="toothStatusBtns"></div>
+    <div class="popup-footer"><button class="btn" onclick="closePopup('toothPopup')">キャンセル</button></div>
   </div>
 </div>
 
 <!-- 患者追加ポップアップ -->
 <div class="overlay" id="addPatientPopup">
-  <div class="popup" id="addPatientPopup">
+  <div class="popup">
     <h3>患者を追加</h3>
-    <div class="form-group">
-      <label>カルテ番号 *</label>
-      <input type="text" id="newPatientId" placeholder="例: 1001">
-    </div>
-    <div class="form-group">
-      <label>お名前 *</label>
-      <input type="text" id="newPatientName" placeholder="例: 山田 太郎">
-    </div>
-    <div class="form-group">
-      <label>生年月日</label>
-      <input type="date" id="newPatientBD">
-    </div>
+    <div class="form-group"><label>カルテ番号 *</label><input type="text" id="newPatientId" placeholder="例: 1001"></div>
+    <div class="form-group"><label>お名前 *</label><input type="text" id="newPatientName" placeholder="例: 山田 太郎"></div>
+    <div class="form-group"><label>生年月日</label><input type="date" id="newPatientBD"></div>
     <div class="popup-footer">
       <button class="btn" onclick="closePopup('addPatientPopup')">キャンセル</button>
       <button class="btn primary" onclick="addPatient()">追加する</button>
@@ -411,394 +168,566 @@
 <div id="toast"></div>
 
 <script>
-// ============================================================
-// ★ここにGASのウェブアプリURLを貼り付けてください★
-// ============================================================
 const GAS_URL = "https://script.google.com/macros/s/AKfycbyOypT53SrPNJdvgFmT4meA-TUU8jEod_-4F5lXVlYO9SkjF_YLveKdq2pxU4Dpkfju/exec";
-// ============================================================
-
-// ★患者側HTMLのURL（QRコード生成に使います）★
-// 例: "https://yourserver.com/patient.html"
-// ローカルで試す場合はそのままでも可（QRにパスが入ります）
 const PATIENT_URL = "https://katomasa1031-alt.github.io/dental-note/patient.html";
 
-// ------------------------------------------------------------
-// 状態
-// ------------------------------------------------------------
-let patients     = [];
-let selectedPid  = null;
-let currentRecord = {
-  teethData:     {},
-  treatmentNote: "",
-  clinicMessage: "",
-  nextPlan:      [],
-  todayDone:     [],
-  date:          today()
+// ============================================================
+// 歯の状態定義
+// ============================================================
+const STATUSES = [
+  {id:'normal',  label:'正常（クリア）', cls:'s-clear',   dot:'#ddd'},
+  {id:'cavity',  label:'虫歯',           cls:'s-cavity',  dot:'#e24b4a'},
+  {id:'treated', label:'治療済み',       cls:'s-treated', dot:'#1d9e75'},
+  {id:'watch',   label:'要注意',         cls:'s-watch',   dot:'#ef9f27'},
+  {id:'filling', label:'詰め物',         cls:'s-filling', dot:'#8b6fd4'},
+  {id:'crown',   label:'被せ物（全体）', cls:'s-crown',   dot:'#378add'},
+];
+const SC = {
+  normal:  {fill:'#ffffff',stroke:'#ccc'},
+  cavity:  {fill:'#fde8e8',stroke:'#e24b4a'},
+  treated: {fill:'#e8f5ee',stroke:'#1d9e75'},
+  watch:   {fill:'#fef3e2',stroke:'#ef9f27'},
+  filling: {fill:'#f0ebff',stroke:'#8b6fd4'},
+  crown:   {fill:'#e4f0f8',stroke:'#378add'},
 };
-let selectedTooth = null;
+const CF='#378add', CS='#185fa5';
 
-const NEXT_OPTIONS = [
-  "フッ素塗布", "定期検診", "虫歯治療の続き",
-  "被せ物の型取り", "抜歯", "矯正チェック", "シーラント", "クリーニング"
+// 歯番→表示ラベル
+const TOOTH_LABEL = {
+  11:1,12:2,13:3,14:4,15:5,16:6,17:7,18:8,
+  21:1,22:2,23:3,24:4,25:5,26:6,27:7,28:8,
+  31:1,32:2,33:3,34:4,35:5,36:6,37:7,38:8,
+  41:1,42:2,43:3,44:4,45:5,46:6,47:7,48:8,
+  51:'A',52:'B',53:'C',54:'D',55:'E',
+  61:'A',62:'B',63:'C',64:'D',65:'E',
+  71:'A',72:'B',73:'C',74:'D',75:'E',
+  81:'A',82:'B',83:'C',84:'D',85:'E',
+};
+
+// 前歯（X分割）の歯番
+const FRONT_TEETH = new Set([11,12,13,21,22,23,31,32,33,41,42,43,51,52,53,61,62,63,71,72,73,81,82,83]);
+
+// 各歯の面
+const FRONT_FACES = [
+  {id:'buccal', name:'頬側（上）'},
+  {id:'distal', name:'遠心（右）'},
+  {id:'lingual',name:'舌側（下）'},
+  {id:'mesial', name:'近心（左）'},
+];
+const MOLAR_FACES = [
+  {id:'occlusal',name:'咬合面（中央）'},
+  {id:'buccal',  name:'頬側（上）'},
+  {id:'mesial',  name:'近心（右）'},
+  {id:'lingual', name:'舌側（下）'},
+  {id:'distal',  name:'遠心（左）'},
 ];
 
-const STATUS_ICON = { cavity:"🔴", treated:"✅", watch:"⚠️", crown:"👑", missing:"✕" };
+// ============================================================
+// 状態管理
+// ============================================================
+let patients = [];
+let selectedPid = null;
+let currentRecord = {teethData:{},treatmentNote:'',clinicMessage:'',nextPlan:[],todayDone:[],date:today()};
+let selectedTooth = null;
+let selectedFace  = null;
 
-// ------------------------------------------------------------
-// 初期化
-// ------------------------------------------------------------
-document.addEventListener("DOMContentLoaded", () => {
+const NEXT_OPTIONS = ['フッ素塗布','定期検診','虫歯治療の続き','被せ物の型取り','抜歯','矯正チェック','シーラント','クリーニング'];
+const TODAY_OPTIONS = ['歯のクリーニングです','むし歯の治療です','むし歯の予防（フッ素・シーラント）です'];
+
+document.addEventListener('DOMContentLoaded',()=>{
   loadPatients();
-  document.getElementById("searchInput").addEventListener("input", renderPatientList);
+  document.getElementById('searchInput').addEventListener('input',renderPatientList);
 });
 
-async function gasGet(params) {
-  const url = GAS_URL + "?" + new URLSearchParams(params);
-  const res  = await fetch(url);
-  return res.json();
+async function gasGet(params){
+  const url = GAS_URL+'?'+new URLSearchParams(params);
+  const res = await fetch(url); return res.json();
 }
-async function gasPost(body) {
-  // GETに統一（CORSを避けるため）
-  const url = GAS_URL + "?" + new URLSearchParams(
-    Object.fromEntries(
-      Object.entries(body).map(([k,v]) => [k, typeof v === 'object' ? JSON.stringify(v) : v])
-    )
+async function gasPost(body){
+  const url = GAS_URL+'?'+new URLSearchParams(
+    Object.fromEntries(Object.entries(body).map(([k,v])=>[k,typeof v==='object'?JSON.stringify(v):v]))
   );
-  const res = await fetch(url);
-  return res.json();
+  const res = await fetch(url); return res.json();
 }
 
-async function loadPatients() {
-  try {
-    const data = await gasGet({ action: "listPatients" });
-    patients = data.patients || [];
-  } catch(e) {
-    // GAS未設定時はデモデータ
-    patients = [
-      { patientId:"1001", name:"山田 花子", birthdate:"2016-04-10", lastVisit:"2025-05-20" },
-      { patientId:"1002", name:"田中 健太", birthdate:"2018-08-03", lastVisit:null }
-    ];
-  }
+async function loadPatients(){
+  try { const d=await gasGet({action:'listPatients'}); patients=d.patients||[]; }
+  catch(e){ patients=[{patientId:'1',name:'テスト 太郎',birthdate:'2019-01-01',lastVisit:null},{patientId:'2',name:'テスト 花子',birthdate:'2020-12-31',lastVisit:null}]; }
   renderPatientList();
 }
 
-function renderPatientList() {
-  const q    = document.getElementById("searchInput").value.toLowerCase();
-  const list = document.getElementById("patientList");
-  const filt = patients.filter(p =>
-    p.name.includes(q) || p.patientId.toString().includes(q)
-  );
-  if (!filt.length) { list.innerHTML = `<div style="padding:20px;text-align:center;color:var(--muted);font-size:.85rem;">患者が見つかりません</div>`; return; }
-  list.innerHTML = filt.map(p => `
-    <div class="patient-item ${p.patientId === selectedPid ? 'active' : ''}" onclick="selectPatient('${p.patientId}')">
+function renderPatientList(){
+  const q=document.getElementById('searchInput').value.toLowerCase();
+  const list=document.getElementById('patientList');
+  const filt=patients.filter(p=>p.name.includes(q)||p.patientId.toString().includes(q));
+  if(!filt.length){list.innerHTML='<div style="padding:20px;text-align:center;color:var(--muted);font-size:.85rem;">患者が見つかりません</div>';return;}
+  list.innerHTML=filt.map(p=>`
+    <div class="patient-item ${p.patientId===selectedPid?'active':''}" onclick="selectPatient('${p.patientId}')">
       <span class="pid">カルテ #${p.patientId}</span>
       <span class="pname">${p.name}</span>
-      <span class="plast">${p.lastVisit ? `最終来院: ${p.lastVisit}` : "来院記録なし"}</span>
-    </div>
-  `).join("");
+      <span class="plast">${p.lastVisit?'最終来院: '+p.lastVisit:'来院記録なし'}</span>
+    </div>`).join('');
 }
 
-// ------------------------------------------------------------
-// 患者選択
-// ------------------------------------------------------------
-async function selectPatient(pid) {
-  selectedPid = pid;
-  renderPatientList();
-
-  document.getElementById("mainArea").innerHTML = `<div class="empty-state"><div class="spinner" style="border-color:var(--border);border-top-color:var(--accent);width:32px;height:32px;"></div><p>読み込み中…</p></div>`;
-
-  let data = {};
-  try { data = await gasGet({ action:"getPatient", patientId: pid }); } catch(e) {}
-
-  const p   = data.patient   || patients.find(x => x.patientId === pid) || {};
-  const rec = data.latestRecord;
-
-  currentRecord = rec ? {
-    teethData:     rec.teethData     || {},
-    treatmentNote: rec.treatmentNote || "",
-    clinicMessage: rec.clinicMessage || "",
-    nextPlan:      rec.nextPlan      || [],
-    todayDone:     rec.todayDone     || [],
-    date:          rec.date          || today()
-  } : { teethData:{}, treatmentNote:"", clinicMessage:"", nextPlan:[], todayDone:[], date:today() };
-
+async function selectPatient(pid){
+  selectedPid=pid; renderPatientList();
+  document.getElementById('mainArea').innerHTML='<div class="empty-state"><p>読み込み中…</p></div>';
+  let data={};
+  try{data=await gasGet({action:'getPatient',patientId:pid});}catch(e){}
+  const p=data.patient||patients.find(x=>x.patientId===pid)||{};
+  const rec=data.latestRecord;
+  currentRecord=rec?{
+    teethData:rec.teethData||{},treatmentNote:rec.treatmentNote||'',
+    clinicMessage:rec.clinicMessage||'',nextPlan:rec.nextPlan||[],
+    todayDone:rec.todayDone||[],date:rec.date||today()
+  }:{teethData:{},treatmentNote:'',clinicMessage:'',nextPlan:[],todayDone:[],date:today()};
   renderMain(p);
 }
 
-function renderMain(p) {
-  const initial = (p.name || "?")[0];
-  document.getElementById("mainArea").innerHTML = `
-    <!-- 患者ヘッダー -->
+function renderMain(p){
+  const initial=(p.name||'?')[0];
+  document.getElementById('mainArea').innerHTML=`
     <div class="patient-header">
       <div class="avatar">${initial}</div>
-      <div class="info">
-        <h2>${p.name || "不明"}</h2>
-        <p>カルテ #${p.patientId} ${p.birthdate ? `・生年月日: ${p.birthdate}` : ""}</p>
-      </div>
+      <div class="info"><h2>${p.name||'不明'}</h2><p>カルテ #${p.patientId} ${p.birthdate?'・生年月日: '+p.birthdate:''}</p></div>
       <div class="actions">
-        <button class="btn" onclick="showQR('${p.patientId}', '${p.name}')">📱 QR表示</button>
+        <button class="btn" onclick="showQR('${p.patientId}','${p.name||''}')">📱 QR表示</button>
         <button class="btn primary" onclick="saveRecord()">💾 保存する</button>
       </div>
     </div>
-
-    <!-- 歯式 -->
     <div class="card">
-      <div class="card-title">🦷 歯式（クリックで状態を変更）</div>
-      <div class="teeth-grid" id="teethGrid"></div>
-      <div class="legend">
-        <div class="legend-item"><div class="legend-dot" style="background:#fde8e8;border:1px solid var(--cavity)"></div>虫歯</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#e8f5ee;border:1px solid var(--treated)"></div>治療済み</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#fef3e2;border:1px solid var(--watch)"></div>要注意</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#e4f0f8;border:1px solid var(--crown)"></div>被せ物</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#f3f4f6;border:1px solid var(--missing)"></div>欠損</div>
-      </div>
+      <div class="card-title">🦷 歯式（部位をクリックして状態を変更）</div>
+      <div class="teeth-chart-wrap"><svg id="teethChartSVG" width="660" height="420"></svg></div>
+      <div class="legend" id="teethLegend"></div>
     </div>
-
-    <!-- 今日の治療 -->
     <div class="card">
       <div class="card-title">📋 今日治療したこと</div>
-      <div class="form-group">
-        <label>治療日</label>
-        <input type="date" id="recDate" value="${currentRecord.date}">
-      </div>
-      <div class="form-group">
-        <label>きょうおこなったのは</label>
-        <div class="checklist" id="todayDoneList"></div>
-      </div>
-      <div class="form-group">
-        <label>治療内容（詳細メモ）</label>
-        <textarea id="treatmentNote" placeholder="例: 右下6番の虫歯を削って詰め物をしました。">${currentRecord.treatmentNote}</textarea>
-      </div>
+      <div class="form-group"><label>治療日</label><input type="date" id="recDate" value="${currentRecord.date}"></div>
+      <div class="form-group"><label>きょうおこなったのは</label><div class="checklist" id="todayDoneList"></div></div>
+      <div class="form-group" style="margin-top:8px;"><label>治療内容（詳細メモ）</label><textarea id="treatmentNote" placeholder="例: 右下6番の虫歯を削って詰め物をしました。">${currentRecord.treatmentNote}</textarea></div>
     </div>
-
-    <!-- 医院からのメッセージ -->
     <div class="card">
       <div class="card-title">💬 医院からのメッセージ</div>
-      <div class="form-group">
-        <textarea id="clinicMessage" placeholder="例: 歯みがきをがんばっています！次回もお待ちしています🦷">${currentRecord.clinicMessage}</textarea>
-      </div>
+      <textarea id="clinicMessage" placeholder="例: 歯みがきをがんばっています！次回もお待ちしています🦷">${currentRecord.clinicMessage}</textarea>
     </div>
-
-    <!-- 次回の治療予定 -->
     <div class="card">
       <div class="card-title">📅 次回の治療予定</div>
       <div class="checklist" id="nextPlanList"></div>
     </div>
   `;
-
-  renderTeeth();
-  renderNextPlan();
+  drawTeethChart();
   renderTodayDoneList();
-}
-
-// ------------------------------------------------------------
-// 歯式レンダリング
-// ------------------------------------------------------------
-// FDI方式: 上右11-18, 上左21-28, 下左31-38, 下右41-48
-// 乳歯: 51-55, 61-65, 71-75, 81-85
-function renderTeeth() {
-  const g = document.getElementById("teethGrid");
-  if (!g) return;
-
-  const upper_R = [18,17,16,15,14,13,12,11];
-  const upper_L = [21,22,23,24,25,26,27,28];
-  const lower_L = [31,32,33,34,35,36,37,38];
-  const lower_R = [48,47,46,45,44,43,42,41];
-
-  // 乳歯
-  const dec_UR = [55,54,53,52,51];
-  const dec_UL = [61,62,63,64,65];
-  const dec_LL = [71,72,73,74,75];
-  const dec_LR = [85,84,83,82,81];
-
-  // 表示ラベル変換
-  const TOOTH_LABEL = {
-    11:1,12:2,13:3,14:4,15:5,16:6,17:7,18:8,
-    21:1,22:2,23:3,24:4,25:5,26:6,27:7,28:8,
-    31:1,32:2,33:3,34:4,35:5,36:6,37:7,38:8,
-    41:1,42:2,43:3,44:4,45:5,46:6,47:7,48:8,
-    51:"E",52:"D",53:"C",54:"B",55:"A",
-    61:"A",62:"B",63:"C",64:"D",65:"E",
-    71:"A",72:"B",73:"C",74:"D",75:"E",
-    81:"E",82:"D",83:"C",84:"B",85:"A",
-  };
-
-  function toothHTML(num, dec=false) {
-    const s   = currentRecord.teethData[num] || "";
-    const ico = STATUS_ICON[s] || "";
-    const lbl = TOOTH_LABEL[num] !== undefined ? TOOTH_LABEL[num] : num;
-    return `<div class="tooth${dec?' deciduous':''}" data-num="${num}" data-status="${s}" onclick="openToothPopup(${num})" title="歯番 ${num}">
-      <span class="tooth-icon">${ico}</span>
-      <span class="tooth-num">${lbl}</span>
-    </div>`;
-  }
-
-  g.innerHTML = `
-    <div class="teeth-row">
-      <span class="teeth-label">UR</span>
-      ${upper_R.map(n=>toothHTML(n)).join("")}
-      <span class="teeth-label" style="width:8px"></span>
-      ${upper_L.map(n=>toothHTML(n)).join("")}
-      <span class="teeth-label">UL</span>
-    </div>
-    <div class="teeth-row" style="opacity:.75;margin-top:-2px;">
-      <span class="teeth-label" style="font-size:.55rem">乳</span>
-      ${dec_UR.map(n=>toothHTML(n,true)).join("")}
-      <span style="width:68px"></span>
-      ${dec_UL.map(n=>toothHTML(n,true)).join("")}
-      <span class="teeth-label" style="font-size:.55rem">乳</span>
-    </div>
-    <div class="jaw-divider" style="width:calc(100% - 44px)"></div>
-    <div class="teeth-row" style="opacity:.75;">
-      <span class="teeth-label" style="font-size:.55rem">乳</span>
-      ${dec_LR.map(n=>toothHTML(n,true)).join("")}
-      <span style="width:68px"></span>
-      ${dec_LL.map(n=>toothHTML(n,true)).join("")}
-      <span class="teeth-label" style="font-size:.55rem">乳</span>
-    </div>
-    <div class="teeth-row">
-      <span class="teeth-label">LR</span>
-      ${lower_R.map(n=>toothHTML(n)).join("")}
-      <span class="teeth-label" style="width:8px"></span>
-      ${lower_L.map(n=>toothHTML(n)).join("")}
-      <span class="teeth-label">LL</span>
-    </div>
-  `;
-}
-
-function openToothPopup(num) {
-  selectedTooth = num;
-  document.getElementById("toothPopupTitle").textContent = `歯番 ${num} の状態を選択`;
-  document.getElementById("toothPopup").classList.add("open");
-}
-
-function setToothStatus(status) {
-  if (status === null) delete currentRecord.teethData[selectedTooth];
-  else currentRecord.teethData[selectedTooth] = status;
-  closePopup("toothPopup");
-  renderTeeth();
-}
-
-// ------------------------------------------------------------
-// 次回予定チェックリスト
-// ------------------------------------------------------------
-function renderNextPlanList() {
-  const el = document.getElementById("nextPlanList");
-  if (!el) return;
-  el.innerHTML = NEXT_OPTIONS.map(opt => {
-    const checked = currentRecord.nextPlan.includes(opt);
-    return `<label class="check-item ${checked ? 'checked' : ''}">
-      <input type="checkbox" ${checked ? 'checked' : ''} onchange="togglePlan('${opt}', this.checked)">
-      <div class="check-mark">${checked ? '✓' : ''}</div>
-      ${opt}
-    </label>`;
-  }).join("");
-}
-function renderNextPlan() { renderNextPlanList(); }
-
-const TODAY_OPTIONS_CLINIC = ["歯のクリーニングです","むし歯の治療です","むし歯の予防（フッ素・シーラント）です"];
-
-function renderTodayDoneList() {
-  const el = document.getElementById("todayDoneList");
-  if (!el) return;
-  el.innerHTML = TODAY_OPTIONS_CLINIC.map(opt => {
-    const checked = currentRecord.todayDone.includes(opt);
-    return `<label class="check-item ${checked ? 'checked' : ''}">
-      <input type="checkbox" ${checked ? 'checked' : ''} onchange="toggleToday('${opt}', this.checked)">
-      <div class="check-mark">${checked ? '✓' : ''}</div>
-      ${opt}
-    </label>`;
-  }).join("");
-}
-
-function toggleToday(opt, val) {
-  if (val) { if (!currentRecord.todayDone.includes(opt)) currentRecord.todayDone.push(opt); }
-  else { currentRecord.todayDone = currentRecord.todayDone.filter(x => x !== opt); }
-  renderTodayDoneList();
-}
-
-function togglePlan(opt, val) {
-  if (val) { if (!currentRecord.nextPlan.includes(opt)) currentRecord.nextPlan.push(opt); }
-  else { currentRecord.nextPlan = currentRecord.nextPlan.filter(x => x !== opt); }
   renderNextPlanList();
 }
 
-// ------------------------------------------------------------
-// 保存
-// ------------------------------------------------------------
-async function saveRecord() {
-  if (!selectedPid) return;
-  currentRecord.treatmentNote = document.getElementById("treatmentNote")?.value || "";
-  currentRecord.clinicMessage = document.getElementById("clinicMessage")?.value || "";
-  currentRecord.date          = document.getElementById("recDate")?.value || today();
+// ============================================================
+// 歯式SVG描画
+// ============================================================
+function getTeethColor(toothNum, faceId){
+  const key = toothNum+'_'+faceId;
+  const s = currentRecord.teethData[key] || 'normal';
+  return SC[s] || SC.normal;
+}
 
-  try {
-    const res = await gasPost({
-      action:        "saveRecord",
-      patientId:     selectedPid,
-      date:          currentRecord.date,
-      teethData:     currentRecord.teethData,
-      treatmentNote: currentRecord.treatmentNote,
-      clinicMessage: currentRecord.clinicMessage,
-      nextPlan:      currentRecord.nextPlan,
-      todayDone:     currentRecord.todayDone
+function isCrown(toothNum){
+  const faces = FRONT_TEETH.has(toothNum) ? FRONT_FACES : MOLAR_FACES;
+  return faces.every(f => (currentRecord.teethData[toothNum+'_'+f.id]||'normal')==='crown');
+}
+
+function drawTeethChart(){
+  const svg = document.getElementById('teethChartSVG');
+  if(!svg) return;
+  svg.innerHTML='';
+
+  const W=660, H=420;
+  const cx=W/2, cy=H/2;
+
+  // テキストヘルパー
+  function addText(x,y,txt,size,color){
+    const t=document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x',x); t.setAttribute('y',y);
+    t.setAttribute('text-anchor','middle');
+    t.setAttribute('font-size',size||'11');
+    t.setAttribute('fill',color||'#7a7068');
+    t.setAttribute('font-family','DM Mono,monospace');
+    t.textContent=txt; svg.appendChild(t);
+  }
+
+  // 上下ラベル
+  addText(cx,18,'上',13,'#2d6a4f');
+  addText(cx,H-4,'下',13,'#2d6a4f');
+  addText(22,cy+4,'右',11,'#7a7068');
+  addText(W-22,cy+4,'左',11,'#7a7068');
+
+  // 中心線（点線）
+  function addLine(x1,y1,x2,y2,dash){
+    const l=document.createElementNS('http://www.w3.org/2000/svg','line');
+    Object.entries({x1,y1,x2,y2,stroke:'#d8d0c5','stroke-width':'1',
+      ...(dash?{'stroke-dasharray':'4,3'}:{})}).forEach(([k,v])=>l.setAttribute(k,v));
+    svg.appendChild(l);
+  }
+  addLine(cx,24,cx,H-12,true);
+  addLine(36,cy,W-36,cy,true);
+
+  // 歯の配置定義
+  // 上右 (UR): 18,17,16,15,14,13,12,11  外側→中心
+  // 上左 (UL): 21,22,23,24,25,26,27,28
+  // 下右 (LR): 48,47,46,45,44,43,42,41
+  // 下左 (LL): 31,32,33,34,35,36,37,38
+  // 乳歯上右: 55,54,53,52,51
+  // 乳歯上左: 61,62,63,64,65
+  // 乳歯下右: 85,84,83,82,81
+  // 乳歯下左: 71,72,73,74,75
+
+  const toothSize = 28; // 大人の歯のサイズ
+  const decSize   = 22; // 乳歯のサイズ
+  const gap = 3;
+
+  // 上段（大人歯）の配置
+  // 右側: 18→11 、左側: 21→28
+  // y位置: cy - offset（上あごは上）
+  const upperY = cy - 60;
+  const lowerY = cy + 60;
+  const upperDecY = cy - 25;
+  const lowerDecY = cy + 25;
+
+  function placeRow(nums, startX, direction, y, size, callback){
+    nums.forEach((num,i)=>{
+      const x = startX + direction * i * (size + gap);
+      callback(num, x, y, size);
     });
-    if (res.error) throw new Error(res.error);
-    toast("✅ 保存しました");
-    loadPatients();
-  } catch(e) {
-    toast("⚠️ 保存エラー: " + e.message);
+  }
+
+  // 上右（大人）: 18から外→11が中心寄り
+  const urNums=[18,17,16,15,14,13,12,11];
+  const ulNums=[21,22,23,24,25,26,27,28];
+  const lrNums=[48,47,46,45,44,43,42,41];
+  const llNums=[31,32,33,34,35,36,37,38];
+  const durNums=[55,54,53,52,51];
+  const dulNums=[61,62,63,64,65];
+  const dlrNums=[85,84,83,82,81];
+  const dllNums=[71,72,73,74,75];
+
+  const s=toothSize, d=decSize, g=gap;
+  const totalW8 = 8*(s+g)-g; // 大人8本分の幅
+  const totalD5 = 5*(d+g)-g; // 乳歯5本分の幅
+
+  // 上右大人: cx-gap/2 から左へ
+  const urStartX = cx - g/2 - s;
+  urNums.forEach((num,i)=>{
+    const x = urStartX - i*(s+g);
+    drawTooth(svg, num, x, upperY, s);
+  });
+  // 上左大人
+  const ulStartX = cx + g/2;
+  ulNums.forEach((num,i)=>{
+    const x = ulStartX + i*(s+g);
+    drawTooth(svg, num, x, upperY, s);
+  });
+
+  // 乳歯上右
+  const durStartX = cx - g/2 - d;
+  durNums.forEach((num,i)=>{
+    const x = durStartX - i*(d+g);
+    drawTooth(svg, num, x, upperDecY, d);
+  });
+  // 乳歯上左
+  const dulStartX = cx + g/2;
+  dulNums.forEach((num,i)=>{
+    const x = dulStartX + i*(d+g);
+    drawTooth(svg, num, x, upperDecY, d);
+  });
+
+  // 下右大人
+  lrNums.forEach((num,i)=>{
+    const x = urStartX - i*(s+g);
+    drawTooth(svg, num, x, lowerY, s);
+  });
+  // 下左大人
+  llNums.forEach((num,i)=>{
+    const x = ulStartX + i*(s+g);
+    drawTooth(svg, num, x, lowerY, s);
+  });
+  // 乳歯下右
+  dlrNums.forEach((num,i)=>{
+    const x = durStartX - i*(d+g);
+    drawTooth(svg, num, x, lowerDecY, d);
+  });
+  // 乳歯下左
+  dllNums.forEach((num,i)=>{
+    const x = dulStartX + i*(d+g);
+    drawTooth(svg, num, x, lowerDecY, d);
+  });
+
+  // 番号ラベル（上段の上・下段の下に表示）
+  function addNumLabels(nums, startX, direction, y, size, above){
+    nums.forEach((num,i)=>{
+      const x = startX + i*(size+g) + size/2;
+      const ly = above ? y-4 : y+size+12;
+      const lbl = TOOTH_LABEL[num];
+      addText(x, ly, lbl!==undefined?lbl:num, 9, '#a09080');
+    });
+  }
+  // 上の歯：番号を上に
+  addNumLabels(urNums.slice().reverse(), cx-g/2-8*s-7*g, -(s+g), upperY, s, true);
+  // シンプルに全部手動で
+  urNums.forEach((num,i)=>{
+    const x = urStartX - i*(s+g) + s/2;
+    addText(x, upperY-5, TOOTH_LABEL[num]!==undefined?TOOTH_LABEL[num]:num, 9, '#a09080');
+  });
+  ulNums.forEach((num,i)=>{
+    const x = ulStartX + i*(s+g) + s/2;
+    addText(x, upperY-5, TOOTH_LABEL[num]!==undefined?TOOTH_LABEL[num]:num, 9, '#a09080');
+  });
+  lrNums.forEach((num,i)=>{
+    const x = urStartX - i*(s+g) + s/2;
+    addText(x, lowerY+s+12, TOOTH_LABEL[num]!==undefined?TOOTH_LABEL[num]:num, 9, '#a09080');
+  });
+  llNums.forEach((num,i)=>{
+    const x = ulStartX + i*(s+g) + s/2;
+    addText(x, lowerY+s+12, TOOTH_LABEL[num]!==undefined?TOOTH_LABEL[num]:num, 9, '#a09080');
+  });
+  // 乳歯ラベル（上：上に、下：下に）
+  durNums.forEach((num,i)=>{
+    const x = durStartX - i*(d+g) + d/2;
+    addText(x, upperDecY-4, TOOTH_LABEL[num]!==undefined?TOOTH_LABEL[num]:num, 8, '#b0a090');
+  });
+  dulNums.forEach((num,i)=>{
+    const x = dulStartX + i*(d+g) + d/2;
+    addText(x, upperDecY-4, TOOTH_LABEL[num]!==undefined?TOOTH_LABEL[num]:num, 8, '#b0a090');
+  });
+  dlrNums.forEach((num,i)=>{
+    const x = durStartX - i*(d+g) + d/2;
+    addText(x, lowerDecY+d+11, TOOTH_LABEL[num]!==undefined?TOOTH_LABEL[num]:num, 8, '#b0a090');
+  });
+  dllNums.forEach((num,i)=>{
+    const x = dulStartX + i*(d+g) + d/2;
+    addText(x, lowerDecY+d+11, TOOTH_LABEL[num]!==undefined?TOOTH_LABEL[num]:num, 8, '#b0a090');
+  });
+
+  updateLegend();
+}
+
+function drawTooth(svg, num, x, y, size){
+  const isFront = FRONT_TEETH.has(num);
+  const crown = isCrown(num);
+  const cx = x + size/2, cy = y + size/2, r = size/2 - 1;
+
+  if(isFront){
+    drawFrontTooth(svg, num, cx, cy, r, crown);
+  } else {
+    drawMolarTooth(svg, num, cx, cy, r, crown);
   }
 }
 
-// ------------------------------------------------------------
-// 患者追加
-// ------------------------------------------------------------
-function openAddPatient() {
-  document.getElementById("newPatientId").value = "";
-  document.getElementById("newPatientName").value = "";
-  document.getElementById("newPatientBD").value = "";
-  document.getElementById("addPatientPopup").classList.add("open");
-}
-async function addPatient() {
-  const pid  = document.getElementById("newPatientId").value.trim();
-  const name = document.getElementById("newPatientName").value.trim();
-  const bd   = document.getElementById("newPatientBD").value;
-  if (!pid || !name) { toast("カルテ番号とお名前は必須です"); return; }
-  try {
-    const res = await gasPost({ action:"addPatient", patientId:pid, name, birthdate:bd });
-    if (res.error) throw new Error(res.error);
-    toast("患者を追加しました");
-    closePopup("addPatientPopup");
-    await loadPatients();
-    selectPatient(pid);
-  } catch(e) {
-    toast("エラー: " + e.message);
+function drawFrontTooth(svg, num, cx, cy, r, crown){
+  // clipPath
+  const clipId = 'clip_'+num;
+  let defs = svg.querySelector('defs');
+  if(!defs){ defs=document.createElementNS('http://www.w3.org/2000/svg','defs'); svg.insertBefore(defs,svg.firstChild); }
+  const cp = document.createElementNS('http://www.w3.org/2000/svg','clipPath');
+  cp.setAttribute('id',clipId);
+  const cr = document.createElementNS('http://www.w3.org/2000/svg','circle');
+  Object.entries({cx,cy,r}).forEach(([k,v])=>cr.setAttribute(k,v));
+  cp.appendChild(cr); defs.appendChild(cp);
+
+  const r45 = r/Math.sqrt(2);
+  const TL={x:cx-r45,y:cy-r45},TR={x:cx+r45,y:cy-r45};
+  const BL={x:cx-r45,y:cy+r45},BR={x:cx+r45,y:cy+r45};
+
+  const faces=[
+    {id:'buccal', name:'頬側（上）', d:`M${cx} ${cy} L${TL.x} ${TL.y} A${r} ${r} 0 0 1 ${TR.x} ${TR.y} Z`},
+    {id:'distal', name:'遠心（右）', d:`M${cx} ${cy} L${TR.x} ${TR.y} A${r} ${r} 0 0 1 ${BR.x} ${BR.y} Z`},
+    {id:'lingual',name:'舌側（下）', d:`M${cx} ${cy} L${BR.x} ${BR.y} A${r} ${r} 0 0 1 ${BL.x} ${BL.y} Z`},
+    {id:'mesial', name:'近心（左）', d:`M${cx} ${cy} L${BL.x} ${BL.y} A${r} ${r} 0 0 1 ${TL.x} ${TL.y} Z`},
+  ];
+
+  faces.forEach(f=>{
+    const c = crown ? {fill:'#e4f0f8',stroke:'#378add'} : getTeethColor(num, f.id);
+    const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+    Object.entries({d:f.d,fill:c.fill,stroke:c.stroke,'stroke-width':'1','stroke-linejoin':'round','clip-path':`url(#${clipId})`}).forEach(([k,v])=>path.setAttribute(k,v));
+    path.style.cursor='pointer';
+    path.addEventListener('click',e=>{e.stopPropagation();openToothPopup(num,f.id,f.name,FRONT_FACES);});
+    path.addEventListener('mouseenter',()=>path.setAttribute('opacity','0.72'));
+    path.addEventListener('mouseleave',()=>path.setAttribute('opacity','1'));
+    svg.appendChild(path);
+  });
+
+  // X線
+  function addLine(x1,y1,x2,y2){
+    const l=document.createElementNS('http://www.w3.org/2000/svg','line');
+    Object.entries({x1,y1,x2,y2,stroke:crown?'#185fa5':'#ccc','stroke-width':'0.8'}).forEach(([k,v])=>l.setAttribute(k,v));
+    svg.appendChild(l);
   }
+  addLine(TL.x,TL.y,BR.x,BR.y);
+  addLine(TR.x,TR.y,BL.x,BL.y);
+
+  // 外周
+  const border=document.createElementNS('http://www.w3.org/2000/svg','circle');
+  Object.entries({cx,cy,r,fill:'none',stroke:crown?'#185fa5':'#c8bfb0','stroke-width':crown?'1.8':'1.2'}).forEach(([k,v])=>border.setAttribute(k,v));
+  svg.appendChild(border);
 }
 
-// ------------------------------------------------------------
-// QRコード
-// ------------------------------------------------------------
-function showQR(pid, name) {
-  const url = `${PATIENT_URL}?patient=${encodeURIComponent(pid)}`;
-  document.getElementById("qrPatientName").textContent = `QRコード：${name} さん`;
-  document.getElementById("qrUrl").textContent = url;
-  document.getElementById("qrcode").innerHTML = "";
-  new QRCode(document.getElementById("qrcode"), { text: url, width: 200, height: 200, colorDark:"#1a1714", colorLight:"#ffffff" });
-  document.getElementById("qrPopup").classList.add("open");
+function drawMolarTooth(svg, num, cx, cy, rOut, crown){
+  const rIn = rOut * 0.38;
+
+  function pt(a,r){ const r2=(a-90)*Math.PI/180; return[cx+r*Math.cos(r2),cy+r*Math.sin(r2)]; }
+
+  const sectors=[
+    {id:'buccal', name:'頬側（上）', a1:315,a2:45},
+    {id:'mesial', name:'近心（右）', a1:45, a2:135},
+    {id:'lingual',name:'舌側（下）', a1:135,a2:225},
+    {id:'distal', name:'遠心（左）', a1:225,a2:315},
+  ];
+
+  // 外周
+  const outerRing=document.createElementNS('http://www.w3.org/2000/svg','circle');
+  Object.entries({cx,cy,r:rOut,fill:'none',stroke:crown?'#185fa5':'#c8bfb0','stroke-width':crown?'1.8':'1.2'}).forEach(([k,v])=>outerRing.setAttribute(k,v));
+  svg.appendChild(outerRing);
+
+  sectors.forEach(s=>{
+    const c = crown ? {fill:'#e4f0f8',stroke:'#378add'} : getTeethColor(num, s.id);
+    const [ox1,oy1]=pt(s.a1,rOut),[ox2,oy2]=pt(s.a2,rOut);
+    const [ix1,iy1]=pt(s.a1,rIn), [ix2,iy2]=pt(s.a2,rIn);
+    const laf=(s.a2-s.a1+360)%360>180?1:0;
+    const d=[`M${ix1} ${iy1}`,`L${ox1} ${oy1}`,`A${rOut} ${rOut} 0 ${laf} 1 ${ox2} ${oy2}`,`L${ix2} ${iy2}`,`A${rIn} ${rIn} 0 ${laf} 0 ${ix1} ${iy1}`,'Z'].join(' ');
+    const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+    Object.entries({d,fill:c.fill,stroke:c.stroke,'stroke-width':'1','stroke-linejoin':'round'}).forEach(([k,v])=>path.setAttribute(k,v));
+    path.style.cursor='pointer';
+    path.addEventListener('click',e=>{e.stopPropagation();openToothPopup(num,s.id,s.name,MOLAR_FACES);});
+    path.addEventListener('mouseenter',()=>path.setAttribute('opacity','0.72'));
+    path.addEventListener('mouseleave',()=>path.setAttribute('opacity','1'));
+    svg.appendChild(path);
+  });
+
+  // 中央
+  const c = crown ? {fill:'#e4f0f8',stroke:'#378add'} : getTeethColor(num,'occlusal');
+  const cc=document.createElementNS('http://www.w3.org/2000/svg','circle');
+  Object.entries({cx,cy,r:rIn,fill:c.fill,stroke:c.stroke,'stroke-width':'1'}).forEach(([k,v])=>cc.setAttribute(k,v));
+  cc.style.cursor='pointer';
+  cc.addEventListener('click',e=>{e.stopPropagation();openToothPopup(num,'occlusal','咬合面（中央）',MOLAR_FACES);});
+  cc.addEventListener('mouseenter',()=>cc.setAttribute('opacity','0.72'));
+  cc.addEventListener('mouseleave',()=>cc.setAttribute('opacity','1'));
+  svg.appendChild(cc);
 }
 
-// ------------------------------------------------------------
-// ユーティリティ
-// ------------------------------------------------------------
-function closePopup(id) { document.getElementById(id).classList.remove("open"); }
-function today() { return new Date().toISOString().slice(0,10); }
-function toast(msg) {
-  const el = document.getElementById("toast");
-  el.textContent = msg; el.classList.add("show");
-  setTimeout(() => el.classList.remove("show"), 2800);
+function openToothPopup(num, faceId, faceName, allFaces){
+  selectedTooth=num; selectedFace=faceId;
+  const currentStatus = currentRecord.teethData[num+'_'+faceId]||'normal';
+  document.getElementById('toothPopupTitle').textContent = `${num}番 - ${faceName}`;
+  const btns=document.getElementById('toothStatusBtns');
+  btns.innerHTML='';
+  STATUSES.forEach(s=>{
+    const btn=document.createElement('button');
+    btn.className='status-btn '+s.cls;
+    btn.innerHTML=`<span style="width:12px;height:12px;border-radius:50%;background:${s.dot};display:inline-block;border:1px solid rgba(0,0,0,.1);"></span>${s.label}`;
+    if(currentStatus===s.id) btn.style.fontWeight='800';
+    btn.addEventListener('click',()=>{
+      if(s.id==='crown'){
+        allFaces.forEach(f=>{ currentRecord.teethData[num+'_'+f.id]='crown'; });
+      } else {
+        if(s.id==='normal') delete currentRecord.teethData[num+'_'+faceId];
+        else currentRecord.teethData[num+'_'+faceId]=s.id;
+      }
+      closePopup('toothPopup');
+      drawTeethChart();
+    });
+    btns.appendChild(btn);
+  });
+  document.getElementById('toothPopup').classList.add('open');
 }
-</script>
+
+function updateLegend(){
+  const used=new Set(Object.values(currentRecord.teethData));
+  const leg=document.getElementById('teethLegend');
+  if(!leg) return;
+  leg.innerHTML=STATUSES.filter(s=>s.id!=='normal'&&used.has(s.id)).map(s=>
+    `<div class="leg"><div class="leg-dot" style="background:${s.dot}"></div>${s.label}</div>`
+  ).join('');
+}
+
+function renderTodayDoneList(){
+  const el=document.getElementById('todayDoneList'); if(!el) return;
+  el.innerHTML=TODAY_OPTIONS.map(opt=>{
+    const checked=currentRecord.todayDone.includes(opt);
+    return `<label class="check-item ${checked?'checked':''}">
+      <input type="checkbox" ${checked?'checked':''} onchange="toggleToday('${opt}',this.checked)">
+      <div class="check-mark">${checked?'✓':''}</div>${opt}
+    </label>`;
+  }).join('');
+}
+function toggleToday(opt,val){
+  if(val){if(!currentRecord.todayDone.includes(opt))currentRecord.todayDone.push(opt);}
+  else{currentRecord.todayDone=currentRecord.todayDone.filter(x=>x!==opt);}
+  renderTodayDoneList();
+}
+
+function renderNextPlanList(){
+  const el=document.getElementById('nextPlanList'); if(!el) return;
+  el.innerHTML=NEXT_OPTIONS.map(opt=>{
+    const checked=currentRecord.nextPlan.includes(opt);
+    return `<label class="check-item ${checked?'checked':''}">
+      <input type="checkbox" ${checked?'checked':''} onchange="togglePlan('${opt}',this.checked)">
+      <div class="check-mark">${checked?'✓':''}</div>${opt}
+    </label>`;
+  }).join('');
+}
+function togglePlan(opt,val){
+  if(val){if(!currentRecord.nextPlan.includes(opt))currentRecord.nextPlan.push(opt);}
+  else{currentRecord.nextPlan=currentRecord.nextPlan.filter(x=>x!==opt);}
+  renderNextPlanList();
+}
+
+async function saveRecord(){
+  if(!selectedPid) return;
+  currentRecord.treatmentNote=document.getElementById('treatmentNote')?.value||'';
+  currentRecord.clinicMessage=document.getElementById('clinicMessage')?.value||'';
+  currentRecord.date=document.getElementById('recDate')?.value||today();
+  try{
+    const res=await gasPost({action:'saveRecord',patientId:selectedPid,date:currentRecord.date,
+      teethData:currentRecord.teethData,treatmentNote:currentRecord.treatmentNote,
+      clinicMessage:currentRecord.clinicMessage,nextPlan:currentRecord.nextPlan,
+      todayDone:currentRecord.todayDone});
+    if(res.error) throw new Error(res.error);
+    toast('✅ 保存しました'); loadPatients();
+  }catch(e){toast('⚠️ 保存エラー: '+e.message);}
+}
+
+function openAddPatient(){
+  document.getElementById('newPatientId').value='';
+  document.getElementById('newPatientName').value='';
+  document.getElementById('newPatientBD').value='';
+  document.getElementById('addPatientPopup').classList.add('open');
+}
+async function addPatient(){
+  const pid=document.getElementById('newPatientId').value.trim();
+  const name=document.getElementById('newPatientName').value.trim();
+  const bd=document.getElementById('newPatientBD').value;
+  if(!pid||!name){toast('カルテ番号とお名前は必須です');return;}
+  try{
+    const res=await gasPost({action:'addPatient',patientId:pid,name,birthdate:bd});
+    if(res.error) throw new Error(res.error);
+    toast('患者を追加しました'); closePopup('addPatientPopup');
+    await loadPatients(); selectPatient(pid);
+  }catch(e){toast('エラー: '+e.message);}
+}
+
+function showQR(pid,name){
+  const url=`${PATIENT_URL}?patient=${encodeURIComponent(pid)}`;
+  document.getElementById('qrPatientName').textContent=`QRコード：${name} さん`;
+  document.getElementById('qrUrl').textContent=url;
+  document.getElementById('qrcode').innerHTML='';
+  new QRCode(document.getElementById('qrcode'),{text:url,width:200,height:200,colorDark:'#1a1714',colorLight:'#ffffff'});
+  document.getElementById('qrPopup').classList.add('open');
+}
+
+function closePopup(id){document.getElementById(id).classList.remove('open');}
+function today(){return new Date().toISOString().slice(0,10);}
+function toast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),2800);
+}
+<\/script>
 </body>
 </html>
