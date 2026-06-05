@@ -307,7 +307,7 @@ function renderMain(p){
     </div>
     <div class="card">
       <div class="card-title">🦷 歯式（部位をクリックして状態を変更）</div>
-      <div class="teeth-chart-wrap"><svg id="teethChartSVG" width="1000" height="640"></svg></div>
+      <div class="teeth-chart-wrap"><svg id="teethChartSVG" width="1000" height="430"></svg></div>
       <div class="legend" id="teethLegend"></div>
     </div>
     <div class="card">
@@ -349,7 +349,7 @@ function drawTeethChart(){
   if(!svg) return;
   svg.innerHTML='';
 
-  const W=1000, H=640;
+  const W=1000, H=430;
   const cx=W/2, cy=H/2;
 
   // テキストヘルパー
@@ -364,8 +364,8 @@ function drawTeethChart(){
   }
 
   // 上下ラベル
-  addText(cx,18,'上',13,'#2d6a4f');
-  addText(cx,H-4,'下',13,'#2d6a4f');
+  addText(cx,cy-102,'上',13,'#2d6a4f');
+  addText(cx,cy+102,'下',13,'#2d6a4f');
   addText(22,cy+4,'右',11,'#7a7068');
   addText(W-22,cy+4,'左',11,'#7a7068');
 
@@ -390,16 +390,16 @@ function drawTeethChart(){
   // 乳歯下左: 71,72,73,74,75
 
   const toothSize = 46; // 大人の歯のサイズ
-  const decSize   = 34; // 乳歯のサイズ
+  const decSize   = 46; // 乳歯のサイズ
   const gap = 2;
 
   // 上段（大人歯）の配置
   // 右側: 18→11 、左側: 21→28
   // y位置: cy - offset（上あごは上）
-  const upperY = cy - 115;
-  const lowerY = cy + 115;
-  const upperDecY = cy - 50;
-  const lowerDecY = cy + 50;
+  const upperY = cy - 135;
+  const lowerY = cy + 135;
+  const upperDecY = cy - 70;
+  const lowerDecY = cy + 70;
 
   function placeRow(nums, startX, direction, y, size, callback){
     nums.forEach((num,i)=>{
