@@ -355,21 +355,19 @@ function drawTeethChart(){
   svg.innerHTML='';
 
   // ドラッグ選択: SVG上でmousedown→mousemoveで複数面に適用
+  let mouseDownOnSVG = false;
   svg.onmousedown = (e)=>{
-    if(e.button !== 0) return; // 左クリックのみ
-    // まずポップアップを開く（通常クリック）
-    // ドラッグ開始はmousemoveで判定
+    if(e.button !== 0) return;
+    mouseDownOnSVG = true;
     isDragging = false;
-    dragStatus = null;
     draggedFaces = new Set();
   };
   svg.addEventListener('mousemove', (e)=>{
-    if(e.buttons !== 1) return; // 左ボタン押しながら
-    if(!isDragging && dragStatus===null) return;
-    isDragging = true;
+    if(!mouseDownOnSVG || e.buttons !== 1) return;
+    if(dragStatus !== null) isDragging = true;
   });
-  svg.onmouseup = ()=>{ isDragging=false; dragStatus=null; draggedFaces=new Set(); };
-  document.onmouseup = ()=>{ isDragging=false; dragStatus=null; draggedFaces=new Set(); };
+  svg.onmouseup = ()=>{ mouseDownOnSVG=false; isDragging=false; draggedFaces=new Set(); };
+  document.onmouseup = ()=>{ mouseDownOnSVG=false; isDragging=false; draggedFaces=new Set(); };
 
   const W=1000, H=450;
   const cx=W/2, cy=H/2;
@@ -607,6 +605,15 @@ function drawFrontTooth(svg, num, cx, cy, r, crown){
   const border=document.createElementNS('http://www.w3.org/2000/svg','circle');
   Object.entries({cx,cy,r,fill:'none',stroke:crown?'#185fa5':'#c8bfb0','stroke-width':crown?'1.8':'1.2'}).forEach(([k,v])=>border.setAttribute(k,v));
   svg.appendChild(border);
+
+  // 欠損マーク(✕)表示
+  if(currentRecord.teethData[num+'_missing']==='missing') drawMissingMark(svg,cx,cy,r);
+
+  // 右クリックで欠損トグル（透明ヒットエリア）
+  const fhit=document.createElementNS('http://www.w3.org/2000/svg','circle');
+  Object.entries({cx,cy,r,fill:'transparent',stroke:'none'}).forEach(([k,v])=>fhit.setAttribute(k,v));
+  fhit.addEventListener('contextmenu',e=>{e.preventDefault();e.stopPropagation();toggleMissing(num);});
+  svg.appendChild(fhit);
 }
 
 function drawMolarTooth(svg, num, cx, cy, rOut, crown){
@@ -668,6 +675,31 @@ function drawMolarTooth(svg, num, cx, cy, rOut, crown){
     cc.setAttribute('opacity','1');
   });
   svg.appendChild(cc);
+
+  // 欠損マーク(✕)表示
+  if(currentRecord.teethData[num+'_missing']==='missing') drawMissingMark(svg,cx,cy,rOut);
+
+  // 右クリックで欠損トグル（透明ヒットエリア）
+  const mhit=document.createElementNS('http://www.w3.org/2000/svg','circle');
+  Object.entries({cx,cy,r:rOut,fill:'transparent',stroke:'none'}).forEach(([k,v])=>mhit.setAttribute(k,v));
+  mhit.addEventListener('contextmenu',e=>{e.preventDefault();e.stopPropagation();toggleMissing(num);});
+  svg.appendChild(mhit);
+}
+
+function drawMissingMark(svg,cx,cy,r){
+  const s=r*0.65;
+  [[cx-s,cy-s,cx+s,cy+s],[cx+s,cy-s,cx-s,cy+s]].forEach(([x1,y1,x2,y2])=>{
+    const l=document.createElementNS('http://www.w3.org/2000/svg','line');
+    Object.entries({x1,y1,x2,y2,stroke:'#555','stroke-width':'2.5','stroke-linecap':'round'}).forEach(([k,v])=>l.setAttribute(k,v));
+    svg.appendChild(l);
+  });
+}
+
+function toggleMissing(num){
+  const key=num+'_missing';
+  if(currentRecord.teethData[key]==='missing') delete currentRecord.teethData[key];
+  else currentRecord.teethData[key]='missing';
+  drawTeethChart();
 }
 
 function applyStatusToFace(num, faceId, allFaces, statusId){
