@@ -369,6 +369,20 @@ function drawTeethChart(){
   svg.onmouseup = ()=>{ mouseDownOnSVG=false; isDragging=false; draggedFaces=new Set(); };
   document.onmouseup = ()=>{ mouseDownOnSVG=false; isDragging=false; draggedFaces=new Set(); };
 
+  // 右クリックで欠損トグル（SVG全体で拾う）
+  svg.addEventListener('contextmenu', e=>{
+    e.preventDefault();
+    // data-tooth属性を持つ要素を探す
+    let el = e.target;
+    for(let i=0; i<5; i++){
+      if(el && el.getAttribute && el.getAttribute('data-tooth')){
+        toggleMissing(parseInt(el.getAttribute('data-tooth')));
+        return;
+      }
+      if(el) el=el.parentElement;
+    }
+  });
+
   const W=1000, H=450;
   const cx=W/2, cy=H/2;
 
@@ -576,6 +590,7 @@ function drawFrontTooth(svg, num, cx, cy, r, crown){
     const c = crown ? {fill:'#e4f0f8',stroke:'#378add'} : getTeethColor(num, f.id);
     const path=document.createElementNS('http://www.w3.org/2000/svg','path');
     Object.entries({d:f.d,fill:c.fill,stroke:c.stroke,'stroke-width':'1','stroke-linejoin':'round','clip-path':`url(#${clipId})`}).forEach(([k,v])=>path.setAttribute(k,v));
+    path.setAttribute('data-tooth', num);
     path.style.cursor='pointer';
     path.addEventListener('click',e=>{e.stopPropagation();openToothPopup(num,f.id,f.name,FRONT_FACES);});
     path.addEventListener('mouseenter',()=>{
@@ -604,16 +619,12 @@ function drawFrontTooth(svg, num, cx, cy, r, crown){
   // 外周
   const border=document.createElementNS('http://www.w3.org/2000/svg','circle');
   Object.entries({cx,cy,r,fill:'none',stroke:crown?'#185fa5':'#c8bfb0','stroke-width':crown?'1.8':'1.2'}).forEach(([k,v])=>border.setAttribute(k,v));
+  border.setAttribute('data-tooth', num);
   svg.appendChild(border);
 
   // 欠損マーク(✕)表示
   if(currentRecord.teethData[num+'_missing']==='missing') drawMissingMark(svg,cx,cy,r);
 
-  // 右クリックで欠損トグル（透明ヒットエリア）
-  const fhit=document.createElementNS('http://www.w3.org/2000/svg','circle');
-  Object.entries({cx,cy,r,fill:'transparent',stroke:'none'}).forEach(([k,v])=>fhit.setAttribute(k,v));
-  fhit.addEventListener('contextmenu',e=>{e.preventDefault();e.stopPropagation();toggleMissing(num);});
-  svg.appendChild(fhit);
 }
 
 function drawMolarTooth(svg, num, cx, cy, rOut, crown){
@@ -641,6 +652,7 @@ function drawMolarTooth(svg, num, cx, cy, rOut, crown){
     const d=[`M${ix1} ${iy1}`,`L${ox1} ${oy1}`,`A${rOut} ${rOut} 0 ${laf} 1 ${ox2} ${oy2}`,`L${ix2} ${iy2}`,`A${rIn} ${rIn} 0 ${laf} 0 ${ix1} ${iy1}`,'Z'].join(' ');
     const path=document.createElementNS('http://www.w3.org/2000/svg','path');
     Object.entries({d,fill:c.fill,stroke:c.stroke,'stroke-width':'1','stroke-linejoin':'round'}).forEach(([k,v])=>path.setAttribute(k,v));
+    path.setAttribute('data-tooth', num);
     path.style.cursor='pointer';
     path.addEventListener('click',e=>{e.stopPropagation();openToothPopup(num,s.id,s.name,MOLAR_FACES);});
     path.addEventListener('mouseenter',()=>{
@@ -661,6 +673,7 @@ function drawMolarTooth(svg, num, cx, cy, rOut, crown){
   const c = crown ? {fill:'#e4f0f8',stroke:'#378add'} : getTeethColor(num,'occlusal');
   const cc=document.createElementNS('http://www.w3.org/2000/svg','circle');
   Object.entries({cx,cy,r:rIn,fill:c.fill,stroke:c.stroke,'stroke-width':'1'}).forEach(([k,v])=>cc.setAttribute(k,v));
+  cc.setAttribute('data-tooth', num);
   cc.style.cursor='pointer';
   cc.addEventListener('click',e=>{e.stopPropagation();openToothPopup(num,'occlusal','咬合面（中央）',MOLAR_FACES);});
   cc.addEventListener('mouseenter',()=>{
@@ -679,11 +692,6 @@ function drawMolarTooth(svg, num, cx, cy, rOut, crown){
   // 欠損マーク(✕)表示
   if(currentRecord.teethData[num+'_missing']==='missing') drawMissingMark(svg,cx,cy,rOut);
 
-  // 右クリックで欠損トグル（透明ヒットエリア）
-  const mhit=document.createElementNS('http://www.w3.org/2000/svg','circle');
-  Object.entries({cx,cy,r:rOut,fill:'transparent',stroke:'none'}).forEach(([k,v])=>mhit.setAttribute(k,v));
-  mhit.addEventListener('contextmenu',e=>{e.preventDefault();e.stopPropagation();toggleMissing(num);});
-  svg.appendChild(mhit);
 }
 
 function drawMissingMark(svg,cx,cy,r){
