@@ -478,9 +478,7 @@ function drawTeethChart(){
       addText(x, ly, lbl!==undefined?lbl:num, 9, '#a09080');
     });
   }
-  // 上の歯：番号を上に
-  addNumLabels(urNums.slice().reverse(), cx-g/2-8*s-7*g, -(s+g), upperY, s, true);
-  // シンプルに全部手動で
+  // 番号ラベル表示
   urNums.forEach((num,i)=>{
     const x = urStartX - i*(s+g) + s/2;
     addText(x, upperY-5, TOOTH_LABEL[num]!==undefined?TOOTH_LABEL[num]:num, 9, '#a09080');
