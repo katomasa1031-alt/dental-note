@@ -362,25 +362,35 @@ function drawTeethChart(){
     if(e.button!==0) return;
     dragStartX=e.clientX; dragStartY=e.clientY;
     isDragging=false; draggedFaces=new Set();
-    // mousedownした部位のステータスを取得してdragStatusにセット
-    const tooth = getToothFromEvent(e);
-    if(tooth) dragStatus = currentRecord.teethData[tooth.num+'_'+tooth.faceId]||'normal';
+    const el=document.elementFromPoint(e.clientX,e.clientY);
+    if(el){
+      const num=el.getAttribute('data-tooth');
+      const face=el.getAttribute('data-face');
+      if(num&&face){
+        const key=num+'_'+face;
+        dragStatus=currentRecord.teethData[key]||'normal';
+        draggedFaces.add(key); // 最初の部位は即追加
+      }
+    }
   });
 
   svg.addEventListener('mousemove', e=>{
     if(e.buttons!==1) return;
     const dx=e.clientX-dragStartX, dy=e.clientY-dragStartY;
-    if(!isDragging && Math.sqrt(dx*dx+dy*dy)>6){
-      isDragging=true;
-    }
+    if(!isDragging && Math.sqrt(dx*dx+dy*dy)>5) isDragging=true;
     if(!isDragging || dragStatus===null) return;
-    const tooth=getToothFromEvent(e);
-    if(!tooth) return;
-    const key=tooth.num+'_'+tooth.faceId;
+    // elementFromPointで正確に部位を特定
+    const el = document.elementFromPoint(e.clientX, e.clientY);
+    if(!el) return;
+    const num = el.getAttribute('data-tooth');
+    const face = el.getAttribute('data-face');
+    if(!num || !face) return;
+    const key=num+'_'+face;
     if(draggedFaces.has(key)) return;
     draggedFaces.add(key);
-    const allFaces=FRONT_TEETH.has(tooth.num)?FRONT_FACES:MOLAR_FACES;
-    applyStatusToFace(tooth.num, tooth.faceId, allFaces, dragStatus);
+    const n=parseInt(num);
+    const allFaces=FRONT_TEETH.has(n)?FRONT_FACES:MOLAR_FACES;
+    applyStatusToFace(n, face, allFaces, dragStatus);
     drawTeethChart();
   });
 
@@ -610,6 +620,7 @@ function drawFrontTooth(svg, num, cx, cy, r, crown){
     path.setAttribute('data-face', f.id);
     path.style.cursor='pointer';
     path.addEventListener('click',e=>{if(isDragging)return;e.stopPropagation();openToothPopup(num,f.id,f.name,FRONT_FACES);});
+    path.addEventListener('contextmenu',e=>{e.preventDefault();e.stopPropagation();toggleMissing(num);});
     path.addEventListener('mouseenter',()=>{
       const orig = path.getAttribute('fill');
       path.setAttribute('data-orig-fill', orig);
@@ -673,6 +684,7 @@ function drawMolarTooth(svg, num, cx, cy, rOut, crown){
     path.setAttribute('data-face', s.id);
     path.style.cursor='pointer';
     path.addEventListener('click',e=>{if(isDragging)return;e.stopPropagation();openToothPopup(num,s.id,s.name,MOLAR_FACES);});
+    path.addEventListener('contextmenu',e=>{e.preventDefault();e.stopPropagation();toggleMissing(num);});
     path.addEventListener('mouseenter',()=>{
       const orig = path.getAttribute('fill');
       path.setAttribute('data-orig-fill', orig);
@@ -695,6 +707,7 @@ function drawMolarTooth(svg, num, cx, cy, rOut, crown){
   cc.setAttribute('data-face', 'occlusal');
   cc.style.cursor='pointer';
   cc.addEventListener('click',e=>{if(isDragging)return;e.stopPropagation();openToothPopup(num,'occlusal','咬合面（中央）',MOLAR_FACES);});
+  cc.addEventListener('contextmenu',e=>{e.preventDefault();e.stopPropagation();toggleMissing(num);});
   cc.addEventListener('mouseenter',()=>{
     const orig = cc.getAttribute('fill');
     cc.setAttribute('data-orig-fill', orig);
