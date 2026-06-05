@@ -317,13 +317,14 @@ function renderMain(p){
     </div>
     <div class="card">
       <div class="card-title">📋 今日治療したこと</div>
-      <div class="form-group"><label>治療日</label><input type="date" id="recDate" value="${currentRecord.date}"></div>
+      <div class="form-group"><label>治療日</label><input type="date" id="recDate" value="${currentRecord.date||today()}"></div>
       <div class="form-group"><label>きょうおこなったのは</label><div class="checklist" id="todayDoneList"></div></div>
-      <div class="form-group" style="margin-top:8px;"><label>治療内容（詳細メモ）</label><textarea id="treatmentNote" placeholder="例: 右下6番の虫歯を削って詰め物をしました。">${currentRecord.treatmentNote}</textarea></div>
+      <div class="form-group" style="margin-top:8px;"><label>治療内容（詳細メモ）</label><textarea id="treatmentNote" placeholder="例: 右下6番の虫歯を削って詰め物をしました。" style="min-height:100px;">${currentRecord.treatmentNote}</textarea></div>
     </div>
     <div class="card">
       <div class="card-title">💬 医院からのメッセージ</div>
-      <textarea id="clinicMessage" placeholder="例: 歯みがきをがんばっています！次回もお待ちしています🦷">${currentRecord.clinicMessage}</textarea>
+      <div id="quickMsgArea" style="margin-bottom:10px;"></div>
+      <textarea id="clinicMessage" placeholder="例: 歯みがきをがんばっています！次回もお待ちしています🦷" style="min-height:100px;">${currentRecord.clinicMessage}</textarea>
     </div>
     <div class="card">
       <div class="card-title">📅 次回の治療予定</div>
@@ -333,6 +334,7 @@ function renderMain(p){
   drawTeethChart();
   renderTodayDoneList();
   renderNextPlanList();
+  renderQuickMsgs();
 }
 
 // ============================================================
@@ -795,6 +797,65 @@ function updateLegend(){
   leg.innerHTML=STATUSES.filter(s=>s.id!=='normal'&&used.has(s.id)).map(s=>
     `<div class="leg"><div class="leg-dot" style="background:${s.dot}"></div>${s.label}</div>`
   ).join('');
+}
+
+const DEFAULT_QUICK_MSGS = [
+  'むし歯の治療をがんばりましたね！次回もお待ちしています🦷',
+  '歯みがきをがんばっています！この調子で続けましょう⭐',
+  'フッ素を塗りました。しばらく飲食は控えてください🙏',
+  'クリーニングをしました。きれいな歯が続くといいですね✨',
+  '次回は少し長い治療になります。頑張りましょう💪',
+  'ご来院ありがとうございました。またお待ちしています😊',
+];
+
+function getQuickMsgs(){
+  const saved = localStorage.getItem('quickMsgs');
+  if(saved) try{ return JSON.parse(saved); }catch(e){}
+  return [...DEFAULT_QUICK_MSGS];
+}
+function saveQuickMsgs(msgs){ localStorage.setItem('quickMsgs', JSON.stringify(msgs)); }
+
+function renderQuickMsgs(){
+  const el=document.getElementById('quickMsgArea'); if(!el) return;
+  const msgs=getQuickMsgs();
+  el.innerHTML=`
+    <div style="font-size:.78rem;color:var(--muted);margin-bottom:6px;font-weight:700;">よく使うメッセージ</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;" id="quickMsgBtns"></div>
+    <div style="margin-top:8px;display:flex;gap:6px;">
+      <input type="text" id="newQuickMsg" placeholder="新しいメッセージを追加…" style="flex:1;font-size:.82rem;">
+      <button class="btn" onclick="addQuickMsg()" style="flex-shrink:0;">追加</button>
+    </div>
+  `;
+  const btns=document.getElementById('quickMsgBtns');
+  msgs.forEach((msg,i)=>{
+    const wrap=document.createElement('div');
+    wrap.style.cssText='display:flex;align-items:center;gap:2px;';
+    const btn=document.createElement('button');
+    btn.className='btn';
+    btn.style.cssText='font-size:.78rem;padding:4px 10px;max-width:300px;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
+    btn.textContent=msg;
+    btn.title=msg;
+    btn.onclick=()=>{
+      const ta=document.getElementById('clinicMessage');
+      if(ta) ta.value=msg;
+    };
+    const del=document.createElement('button');
+    del.textContent='×';
+    del.style.cssText='border:none;background:none;color:var(--muted);cursor:pointer;font-size:.9rem;padding:2px 4px;line-height:1;';
+    del.onclick=()=>{
+      const m=getQuickMsgs(); m.splice(i,1); saveQuickMsgs(m); renderQuickMsgs();
+    };
+    wrap.appendChild(btn); wrap.appendChild(del);
+    btns.appendChild(wrap);
+  });
+}
+
+function addQuickMsg(){
+  const inp=document.getElementById('newQuickMsg'); if(!inp) return;
+  const msg=inp.value.trim(); if(!msg) return;
+  const msgs=getQuickMsgs(); msgs.push(msg); saveQuickMsgs(msgs);
+  inp.value=''; renderQuickMsgs();
+  toast('メッセージを追加しました');
 }
 
 function renderTodayDoneList(){
