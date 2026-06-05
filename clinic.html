@@ -307,7 +307,7 @@ function renderMain(p){
     </div>
     <div class="card">
       <div class="card-title">🦷 歯式（部位をクリックして状態を変更）</div>
-      <div class="teeth-chart-wrap"><svg id="teethChartSVG" width="660" height="420"></svg></div>
+      <div class="teeth-chart-wrap"><svg id="teethChartSVG" width="860" height="520"></svg></div>
       <div class="legend" id="teethLegend"></div>
     </div>
     <div class="card">
@@ -349,7 +349,7 @@ function drawTeethChart(){
   if(!svg) return;
   svg.innerHTML='';
 
-  const W=660, H=420;
+  const W=860, H=520;
   const cx=W/2, cy=H/2;
 
   // テキストヘルパー
@@ -389,9 +389,9 @@ function drawTeethChart(){
   // 乳歯下右: 85,84,83,82,81
   // 乳歯下左: 71,72,73,74,75
 
-  const toothSize = 28; // 大人の歯のサイズ
-  const decSize   = 22; // 乳歯のサイズ
-  const gap = 3;
+  const toothSize = 36; // 大人の歯のサイズ
+  const decSize   = 28; // 乳歯のサイズ
+  const gap = 2;
 
   // 上段（大人歯）の配置
   // 右側: 18→11 、左側: 21→28
@@ -556,8 +556,17 @@ function drawFrontTooth(svg, num, cx, cy, r, crown){
     Object.entries({d:f.d,fill:c.fill,stroke:c.stroke,'stroke-width':'1','stroke-linejoin':'round','clip-path':`url(#${clipId})`}).forEach(([k,v])=>path.setAttribute(k,v));
     path.style.cursor='pointer';
     path.addEventListener('click',e=>{e.stopPropagation();openToothPopup(num,f.id,f.name,FRONT_FACES);});
-    path.addEventListener('mouseenter',()=>path.setAttribute('opacity','0.72'));
-    path.addEventListener('mouseleave',()=>path.setAttribute('opacity','1'));
+    path.addEventListener('mouseenter',()=>{
+      const orig = path.getAttribute('fill');
+      path.setAttribute('data-orig-fill', orig);
+      if(orig==='#ffffff' || orig==='var(--color-background-primary)') path.setAttribute('fill','#e0e0e0');
+      else path.setAttribute('opacity','0.75');
+    });
+    path.addEventListener('mouseleave',()=>{
+      const orig = path.getAttribute('data-orig-fill');
+      if(orig) path.setAttribute('fill', orig);
+      path.setAttribute('opacity','1');
+    });
     svg.appendChild(path);
   });
 
@@ -603,8 +612,17 @@ function drawMolarTooth(svg, num, cx, cy, rOut, crown){
     Object.entries({d,fill:c.fill,stroke:c.stroke,'stroke-width':'1','stroke-linejoin':'round'}).forEach(([k,v])=>path.setAttribute(k,v));
     path.style.cursor='pointer';
     path.addEventListener('click',e=>{e.stopPropagation();openToothPopup(num,s.id,s.name,MOLAR_FACES);});
-    path.addEventListener('mouseenter',()=>path.setAttribute('opacity','0.72'));
-    path.addEventListener('mouseleave',()=>path.setAttribute('opacity','1'));
+    path.addEventListener('mouseenter',()=>{
+      const orig = path.getAttribute('fill');
+      path.setAttribute('data-orig-fill', orig);
+      if(orig==='#ffffff') path.setAttribute('fill','#e0e0e0');
+      else path.setAttribute('opacity','0.75');
+    });
+    path.addEventListener('mouseleave',()=>{
+      const orig = path.getAttribute('data-orig-fill');
+      if(orig) path.setAttribute('fill', orig);
+      path.setAttribute('opacity','1');
+    });
     svg.appendChild(path);
   });
 
@@ -614,8 +632,17 @@ function drawMolarTooth(svg, num, cx, cy, rOut, crown){
   Object.entries({cx,cy,r:rIn,fill:c.fill,stroke:c.stroke,'stroke-width':'1'}).forEach(([k,v])=>cc.setAttribute(k,v));
   cc.style.cursor='pointer';
   cc.addEventListener('click',e=>{e.stopPropagation();openToothPopup(num,'occlusal','咬合面（中央）',MOLAR_FACES);});
-  cc.addEventListener('mouseenter',()=>cc.setAttribute('opacity','0.72'));
-  cc.addEventListener('mouseleave',()=>cc.setAttribute('opacity','1'));
+  cc.addEventListener('mouseenter',()=>{
+    const orig = cc.getAttribute('fill');
+    cc.setAttribute('data-orig-fill', orig);
+    if(orig==='#ffffff') cc.setAttribute('fill','#e0e0e0');
+    else cc.setAttribute('opacity','0.75');
+  });
+  cc.addEventListener('mouseleave',()=>{
+    const orig = cc.getAttribute('data-orig-fill');
+    if(orig) cc.setAttribute('fill', orig);
+    cc.setAttribute('opacity','1');
+  });
   svg.appendChild(cc);
 }
 
