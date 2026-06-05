@@ -251,9 +251,19 @@ async function gasPost(body){
 }
 
 async function loadPatients(){
-  try { const d=await gasGet({action:'listPatients'}); patients=d.patients||[]; }
-  catch(e){ patients=[{patientId:'1',name:'テスト 太郎',birthdate:'2019-01-01',lastVisit:null},{patientId:'2',name:'テスト 花子',birthdate:'2020-12-31',lastVisit:null}]; }
-  renderPatientList();
+  // まずデモデータで即座に表示
+  if(patients.length===0){
+    patients=[{patientId:'1',name:'テスト 太郎',birthdate:'2019-01-01',lastVisit:null},{patientId:'2',name:'テスト 花子',birthdate:'2020-12-31',lastVisit:null}];
+    renderPatientList();
+  }
+  // バックグラウンドでGASから取得
+  try {
+    const d=await gasGet({action:'listPatients'});
+    if(d.patients && d.patients.length>0){
+      patients=d.patients;
+      renderPatientList();
+    }
+  } catch(e){ /* GAS未接続時はデモデータのまま */ }
 }
 
 function renderPatientList(){
