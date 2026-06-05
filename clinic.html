@@ -231,6 +231,11 @@ let currentRecord = {teethData:{},treatmentNote:'',clinicMessage:'',nextPlan:[],
 let selectedTooth = null;
 let selectedFace  = null;
 
+// ドラッグ選択用
+let isDragging = false;
+let dragStatus = null; // ドラッグ中に適用するステータス
+let draggedFaces = new Set(); // 今回のドラッグで適用済みの面
+
 const NEXT_OPTIONS = ['フッ素塗布','定期検診','虫歯治療の続き','被せ物の型取り','抜歯','矯正チェック','シーラント','クリーニング'];
 const TODAY_OPTIONS = ['歯のクリーニングです','むし歯の治療です','むし歯の予防（フッ素・シーラント）です'];
 
@@ -348,6 +353,23 @@ function drawTeethChart(){
   const svg = document.getElementById('teethChartSVG');
   if(!svg) return;
   svg.innerHTML='';
+
+  // ドラッグ選択: SVG上でmousedown→mousemoveで複数面に適用
+  svg.onmousedown = (e)=>{
+    if(e.button !== 0) return; // 左クリックのみ
+    // まずポップアップを開く（通常クリック）
+    // ドラッグ開始はmousemoveで判定
+    isDragging = false;
+    dragStatus = null;
+    draggedFaces = new Set();
+  };
+  svg.addEventListener('mousemove', (e)=>{
+    if(e.buttons !== 1) return; // 左ボタン押しながら
+    if(!isDragging && dragStatus===null) return;
+    isDragging = true;
+  });
+  svg.onmouseup = ()=>{ isDragging=false; dragStatus=null; draggedFaces=new Set(); };
+  document.onmouseup = ()=>{ isDragging=false; dragStatus=null; draggedFaces=new Set(); };
 
   const W=1000, H=450;
   const cx=W/2, cy=H/2;
@@ -648,7 +670,28 @@ function drawMolarTooth(svg, num, cx, cy, rOut, crown){
   svg.appendChild(cc);
 }
 
+function applyStatusToFace(num, faceId, allFaces, statusId){
+  if(statusId==='crown'){
+    allFaces.forEach(f=>{ currentRecord.teethData[num+'_'+f.id]='crown'; });
+  } else if(statusId==='normal'){
+    delete currentRecord.teethData[num+'_'+faceId];
+  } else {
+    currentRecord.teethData[num+'_'+faceId]=statusId;
+  }
+}
+
 function openToothPopup(num, faceId, faceName, allFaces){
+  // ドラッグ中は即適用
+  if(isDragging && dragStatus){
+    const key = num+'_'+faceId;
+    if(!draggedFaces.has(key)){
+      draggedFaces.add(key);
+      applyStatusToFace(num, faceId, allFaces, dragStatus);
+      drawTeethChart();
+    }
+    return;
+  }
+
   selectedTooth=num; selectedFace=faceId;
   const currentStatus = currentRecord.teethData[num+'_'+faceId]||'normal';
   document.getElementById('toothPopupTitle').textContent = `${num}番 - ${faceName}`;
@@ -660,12 +703,8 @@ function openToothPopup(num, faceId, faceName, allFaces){
     btn.innerHTML=`<span style="width:12px;height:12px;border-radius:50%;background:${s.dot};display:inline-block;border:1px solid rgba(0,0,0,.1);"></span>${s.label}`;
     if(currentStatus===s.id) btn.style.fontWeight='800';
     btn.addEventListener('click',()=>{
-      if(s.id==='crown'){
-        allFaces.forEach(f=>{ currentRecord.teethData[num+'_'+f.id]='crown'; });
-      } else {
-        if(s.id==='normal') delete currentRecord.teethData[num+'_'+faceId];
-        else currentRecord.teethData[num+'_'+faceId]=s.id;
-      }
+      dragStatus = s.id; // 次のドラッグに使うステータスをセット
+      applyStatusToFace(num, faceId, allFaces, s.id);
       closePopup('toothPopup');
       drawTeethChart();
     });
