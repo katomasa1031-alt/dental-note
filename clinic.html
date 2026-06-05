@@ -307,7 +307,7 @@ function renderMain(p){
     </div>
     <div class="card">
       <div class="card-title">🦷 歯式（部位をクリックして状態を変更）</div>
-      <div class="teeth-chart-wrap"><svg id="teethChartSVG" width="860" height="520"></svg></div>
+      <div class="teeth-chart-wrap"><svg id="teethChartSVG" width="1000" height="640"></svg></div>
       <div class="legend" id="teethLegend"></div>
     </div>
     <div class="card">
@@ -349,7 +349,7 @@ function drawTeethChart(){
   if(!svg) return;
   svg.innerHTML='';
 
-  const W=860, H=520;
+  const W=1000, H=640;
   const cx=W/2, cy=H/2;
 
   // テキストヘルパー
@@ -389,17 +389,17 @@ function drawTeethChart(){
   // 乳歯下右: 85,84,83,82,81
   // 乳歯下左: 71,72,73,74,75
 
-  const toothSize = 36; // 大人の歯のサイズ
-  const decSize   = 28; // 乳歯のサイズ
+  const toothSize = 46; // 大人の歯のサイズ
+  const decSize   = 34; // 乳歯のサイズ
   const gap = 2;
 
   // 上段（大人歯）の配置
   // 右側: 18→11 、左側: 21→28
   // y位置: cy - offset（上あごは上）
-  const upperY = cy - 60;
-  const lowerY = cy + 60;
-  const upperDecY = cy - 25;
-  const lowerDecY = cy + 25;
+  const upperY = cy - 115;
+  const lowerY = cy + 115;
+  const upperDecY = cy - 50;
+  const lowerDecY = cy + 50;
 
   function placeRow(nums, startX, direction, y, size, callback){
     nums.forEach((num,i)=>{
