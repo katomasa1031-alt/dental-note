@@ -355,29 +355,45 @@ function drawTeethChart(){
   svg.innerHTML='';
 
   // ドラッグ選択: SVG上でmousedown→mousemoveで複数面に適用
-  let mouseDownOnSVG = false;
-  svg.onmousedown = (e)=>{
-    if(e.button !== 0) return;
-    mouseDownOnSVG = true;
-    isDragging = false;
-    draggedFaces = new Set();
-  };
-  svg.addEventListener('mousemove', (e)=>{
-    if(!mouseDownOnSVG || e.buttons !== 1) return;
-    if(dragStatus !== null) isDragging = true;
-  });
-  svg.onmouseup = ()=>{ mouseDownOnSVG=false; isDragging=false; draggedFaces=new Set(); };
-  document.onmouseup = ()=>{ mouseDownOnSVG=false; isDragging=false; draggedFaces=new Set(); };
+  // ドラッグ選択
+  let dragStartX=0, dragStartY=0;
 
-  // 右クリックで欠損トグル（SVG全体で拾う）
+  svg.addEventListener('mousedown', e=>{
+    if(e.button!==0) return;
+    dragStartX=e.clientX; dragStartY=e.clientY;
+    isDragging=false; draggedFaces=new Set();
+    // mousedownした部位のステータスを取得してdragStatusにセット
+    const tooth = getToothFromEvent(e);
+    if(tooth) dragStatus = currentRecord.teethData[tooth.num+'_'+tooth.faceId]||'normal';
+  });
+
+  svg.addEventListener('mousemove', e=>{
+    if(e.buttons!==1) return;
+    const dx=e.clientX-dragStartX, dy=e.clientY-dragStartY;
+    if(!isDragging && Math.sqrt(dx*dx+dy*dy)>6){
+      isDragging=true;
+    }
+    if(!isDragging || dragStatus===null) return;
+    const tooth=getToothFromEvent(e);
+    if(!tooth) return;
+    const key=tooth.num+'_'+tooth.faceId;
+    if(draggedFaces.has(key)) return;
+    draggedFaces.add(key);
+    const allFaces=FRONT_TEETH.has(tooth.num)?FRONT_FACES:MOLAR_FACES;
+    applyStatusToFace(tooth.num, tooth.faceId, allFaces, dragStatus);
+    drawTeethChart();
+  });
+
+  svg.addEventListener('mouseup', ()=>{ isDragging=false; draggedFaces=new Set(); });
+  document.addEventListener('mouseup', ()=>{ isDragging=false; draggedFaces=new Set(); });
+
+  // 右クリックで欠損トグル
   svg.addEventListener('contextmenu', e=>{
     e.preventDefault();
-    // data-tooth属性を持つ要素を探す
-    let el = e.target;
-    for(let i=0; i<5; i++){
-      if(el && el.getAttribute && el.getAttribute('data-tooth')){
-        toggleMissing(parseInt(el.getAttribute('data-tooth')));
-        return;
+    let el=e.target;
+    for(let i=0;i<5;i++){
+      if(el&&el.getAttribute&&el.getAttribute('data-tooth')){
+        toggleMissing(parseInt(el.getAttribute('data-tooth'))); return;
       }
       if(el) el=el.parentElement;
     }
@@ -591,8 +607,9 @@ function drawFrontTooth(svg, num, cx, cy, r, crown){
     const path=document.createElementNS('http://www.w3.org/2000/svg','path');
     Object.entries({d:f.d,fill:c.fill,stroke:c.stroke,'stroke-width':'1','stroke-linejoin':'round','clip-path':`url(#${clipId})`}).forEach(([k,v])=>path.setAttribute(k,v));
     path.setAttribute('data-tooth', num);
+    path.setAttribute('data-face', f.id);
     path.style.cursor='pointer';
-    path.addEventListener('click',e=>{e.stopPropagation();openToothPopup(num,f.id,f.name,FRONT_FACES);});
+    path.addEventListener('click',e=>{if(isDragging)return;e.stopPropagation();openToothPopup(num,f.id,f.name,FRONT_FACES);});
     path.addEventListener('mouseenter',()=>{
       const orig = path.getAttribute('fill');
       path.setAttribute('data-orig-fill', orig);
@@ -653,8 +670,9 @@ function drawMolarTooth(svg, num, cx, cy, rOut, crown){
     const path=document.createElementNS('http://www.w3.org/2000/svg','path');
     Object.entries({d,fill:c.fill,stroke:c.stroke,'stroke-width':'1','stroke-linejoin':'round'}).forEach(([k,v])=>path.setAttribute(k,v));
     path.setAttribute('data-tooth', num);
+    path.setAttribute('data-face', s.id);
     path.style.cursor='pointer';
-    path.addEventListener('click',e=>{e.stopPropagation();openToothPopup(num,s.id,s.name,MOLAR_FACES);});
+    path.addEventListener('click',e=>{if(isDragging)return;e.stopPropagation();openToothPopup(num,s.id,s.name,MOLAR_FACES);});
     path.addEventListener('mouseenter',()=>{
       const orig = path.getAttribute('fill');
       path.setAttribute('data-orig-fill', orig);
@@ -674,8 +692,9 @@ function drawMolarTooth(svg, num, cx, cy, rOut, crown){
   const cc=document.createElementNS('http://www.w3.org/2000/svg','circle');
   Object.entries({cx,cy,r:rIn,fill:c.fill,stroke:c.stroke,'stroke-width':'1'}).forEach(([k,v])=>cc.setAttribute(k,v));
   cc.setAttribute('data-tooth', num);
+  cc.setAttribute('data-face', 'occlusal');
   cc.style.cursor='pointer';
-  cc.addEventListener('click',e=>{e.stopPropagation();openToothPopup(num,'occlusal','咬合面（中央）',MOLAR_FACES);});
+  cc.addEventListener('click',e=>{if(isDragging)return;e.stopPropagation();openToothPopup(num,'occlusal','咬合面（中央）',MOLAR_FACES);});
   cc.addEventListener('mouseenter',()=>{
     const orig = cc.getAttribute('fill');
     cc.setAttribute('data-orig-fill', orig);
@@ -721,17 +740,6 @@ function applyStatusToFace(num, faceId, allFaces, statusId){
 }
 
 function openToothPopup(num, faceId, faceName, allFaces){
-  // ドラッグ中は即適用
-  if(isDragging && dragStatus){
-    const key = num+'_'+faceId;
-    if(!draggedFaces.has(key)){
-      draggedFaces.add(key);
-      applyStatusToFace(num, faceId, allFaces, dragStatus);
-      drawTeethChart();
-    }
-    return;
-  }
-
   selectedTooth=num; selectedFace=faceId;
   const currentStatus = currentRecord.teethData[num+'_'+faceId]||'normal';
   document.getElementById('toothPopupTitle').textContent = `${num}番 - ${faceName}`;
@@ -751,6 +759,20 @@ function openToothPopup(num, faceId, faceName, allFaces){
     btns.appendChild(btn);
   });
   document.getElementById('toothPopup').classList.add('open');
+}
+
+function getToothFromEvent(e){
+  // イベント発生位置のelementからdata-tooth, data-faceを取得
+  let el=e.target;
+  for(let i=0;i<3;i++){
+    if(el&&el.getAttribute){
+      const num=el.getAttribute('data-tooth');
+      const face=el.getAttribute('data-face');
+      if(num&&face) return {num:parseInt(num), faceId:face};
+    }
+    if(el) el=el.parentElement;
+  }
+  return null;
 }
 
 function updateLegend(){
