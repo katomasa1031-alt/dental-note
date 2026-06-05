@@ -363,9 +363,7 @@ function drawTeethChart(){
     t.textContent=txt; svg.appendChild(t);
   }
 
-  // 上下ラベル
-  addText(cx, upperY - s/2 - 12,'上',13,'#2d6a4f');
-  addText(cx, lowerY + s/2 + 14,'下',13,'#2d6a4f');
+  // 右左ラベルのみここで
   addText(22,cy+4,'右',11,'#7a7068');
   addText(W-22,cy+4,'左',11,'#7a7068');
 
@@ -512,6 +510,10 @@ function drawTeethChart(){
     const x = dulStartX + i*(d+g) + d/2;
     addText(x, lowerDecY+d+11, TOOTH_LABEL[num]!==undefined?TOOTH_LABEL[num]:num, 8, '#b0a090');
   });
+
+  // 上下ラベル（s,upperY定義後に描画）
+  addText(cx, upperY - s/2 - 14, '上', 13, '#2d6a4f');
+  addText(cx, lowerY + s/2 + 16, '下', 13, '#2d6a4f');
 
   updateLegend();
 }
