@@ -307,7 +307,7 @@ function renderMain(p){
     </div>
     <div class="card">
       <div class="card-title">🦷 歯式（部位をクリックして状態を変更）</div>
-      <div class="teeth-chart-wrap"><svg id="teethChartSVG" width="1000" height="430"></svg></div>
+      <div class="teeth-chart-wrap"><svg id="teethChartSVG" width="1000" height="450"></svg></div>
       <div class="legend" id="teethLegend"></div>
     </div>
     <div class="card">
@@ -349,7 +349,7 @@ function drawTeethChart(){
   if(!svg) return;
   svg.innerHTML='';
 
-  const W=1000, H=430;
+  const W=1000, H=450;
   const cx=W/2, cy=H/2;
 
   // テキストヘルパー
@@ -374,7 +374,7 @@ function drawTeethChart(){
       ...(dash?{'stroke-dasharray':'4,3'}:{})}).forEach(([k,v])=>l.setAttribute(k,v));
     svg.appendChild(l);
   }
-  addLine(cx,24,cx,H-12,true);
+  addLine(cx,30,cx,H-30,true);
   addLine(36,cy,W-36,cy,true);
 
   // 歯の配置定義
@@ -394,10 +394,10 @@ function drawTeethChart(){
   // 上段（大人歯）の配置
   // 右側: 18→11 、左側: 21→28
   // y位置: cy - offset（上あごは上）
-  const upperY = cy - 100;
-  const lowerY = cy + 100;
-  const upperDecY = cy - 42;
-  const lowerDecY = cy + 42;
+  const upperY = cy - 152;
+  const lowerY = cy + 152;
+  const upperDecY = cy - 90;
+  const lowerDecY = cy + 90;
 
   function placeRow(nums, startX, direction, y, size, callback){
     nums.forEach((num,i)=>{
@@ -512,8 +512,8 @@ function drawTeethChart(){
   });
 
   // 上下ラベル（s,upperY定義後に描画）
-  addText(cx, upperY - s/2 - 14, '上', 13, '#2d6a4f');
-  addText(cx, lowerY + s/2 + 16, '下', 13, '#2d6a4f');
+  addText(cx, 20, '上', 13, '#2d6a4f');
+  addText(cx, H-10, '下', 13, '#2d6a4f');
 
   updateLegend();
 }
