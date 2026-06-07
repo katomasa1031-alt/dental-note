@@ -54,6 +54,13 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--tx);min-he
 .stamp{text-align:center;padding:18px;color:var(--mu);font-size:.82rem;}
 .stamp .big{font-size:2.2rem;display:block;margin-bottom:4px;}
 .eb{background:#fde8e8;border:2px solid #e05050;border-radius:12px;padding:18px;text-align:center;color:#a02020;font-size:.88rem;line-height:1.7;}
+.dsel-wrap{margin-top:12px;padding:10px 14px;background:var(--orl);border-top:2px solid var(--orb);display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.dsel-wrap label{font-size:.75rem;font-weight:800;color:var(--mu);white-space:nowrap;}
+.dsel{font-family:'Nunito',sans-serif;font-size:.82rem;color:var(--tx);border:2px solid var(--orb);border-radius:8px;padding:5px 8px;background:#fff;outline:none;cursor:pointer;flex:1;min-width:0;}
+.dsel:focus{border-color:var(--or);}
+.dbadge{font-size:.72rem;font-weight:800;padding:3px 9px;border-radius:100px;white-space:nowrap;}
+.dbadge.today{background:#e8f5ee;color:#1a5c36;border:1.5px solid #9dd4b4;}
+.dbadge.past{background:#fff3e0;color:#7a4800;border:1.5px solid var(--orb);}
 </style>
 </head>
 <body>
@@ -63,23 +70,84 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--tx);min-he
 </div>
 <div class="con" id="app"></div>
 <script>
-var GAS_URL = "https://script.google.com/macros/s/AKfycbyOypT53SrPNJdvgFmT4meA-TUU8jEod_-4F5lXVlYO9SkjF_YLveKdq2pxU4Dpkfju/exec";
+var GAS_URL = "https://script.google.com/macros/s/AKfycbzMs_azZFAZjItBJXx42V1swNhyUJm7K3LRPorGDSsWxfOW6ZQlgdjUw2xHoDP3AZ5v/exec";
 var TP = {"18":{cx:8.5,cy:44.5,r:5.5},"17":{cx:11.5,cy:33.5,r:5.0},"16":{cx:16.5,cy:24.0,r:4.5},"15":{cx:23.5,cy:16.5,r:3.8},"14":{cx:31.5,cy:11.5,r:3.5},"13":{cx:40.0,cy:8.5,r:3.2},"12":{cx:47.5,cy:7.5,r:2.8},"11":{cx:50.5,cy:6.8,r:2.8},"21":{cx:52.5,cy:6.8,r:2.8},"22":{cx:57.5,cy:7.5,r:2.8},"23":{cx:63.0,cy:8.5,r:3.2},"24":{cx:70.5,cy:11.5,r:3.5},"25":{cx:77.5,cy:16.5,r:3.8},"26":{cx:83.5,cy:24.0,r:4.5},"27":{cx:88.0,cy:33.5,r:5.0},"28":{cx:91.5,cy:44.5,r:5.5},"55":{cx:36.0,cy:20.5,r:2.8},"54":{cx:32.0,cy:26.5,r:2.5},"53":{cx:30.0,cy:33.0,r:2.3},"52":{cx:30.5,cy:39.0,r:2.2},"51":{cx:31.5,cy:44.5,r:2.2},"61":{cx:68.5,cy:44.5,r:2.2},"62":{cx:69.5,cy:39.0,r:2.2},"63":{cx:70.0,cy:33.0,r:2.3},"64":{cx:68.0,cy:26.5,r:2.5},"65":{cx:64.0,cy:20.5,r:2.8},"48":{cx:8.5,cy:55.5,r:5.5},"47":{cx:11.5,cy:66.5,r:5.0},"46":{cx:16.5,cy:76.0,r:4.5},"45":{cx:23.5,cy:83.5,r:3.8},"44":{cx:31.5,cy:88.5,r:3.5},"43":{cx:40.0,cy:91.5,r:3.2},"42":{cx:47.5,cy:92.5,r:2.8},"41":{cx:50.5,cy:93.2,r:2.8},"31":{cx:52.5,cy:93.2,r:2.8},"32":{cx:57.5,cy:92.5,r:2.8},"33":{cx:63.0,cy:91.5,r:3.2},"34":{cx:70.5,cy:88.5,r:3.5},"35":{cx:77.5,cy:83.5,r:3.8},"36":{cx:83.5,cy:76.0,r:4.5},"37":{cx:88.0,cy:66.5,r:5.0},"38":{cx:91.5,cy:55.5,r:5.5},"85":{cx:31.5,cy:55.5,r:2.2},"84":{cx:30.5,cy:61.0,r:2.2},"83":{cx:30.0,cy:67.0,r:2.3},"82":{cx:32.0,cy:73.5,r:2.5},"81":{cx:36.0,cy:79.5,r:2.8},"71":{cx:64.0,cy:79.5,r:2.8},"72":{cx:68.0,cy:73.5,r:2.5},"73":{cx:70.0,cy:67.0,r:2.3},"74":{cx:69.5,cy:61.0,r:2.2},"75":{cx:68.5,cy:55.5,r:2.2}};
 var SC = {cavity:{bg:"rgba(224,80,80,.8)",bd:"#c03030",lb:"むし歯",dt:"#e05050"},treated:{bg:"rgba(45,156,99,.8)",bd:"#1a7a50",lb:"ちりょう済",dt:"#2d9c63"},watch:{bg:"rgba(245,124,0,.8)",bd:"#c06000",lb:"ようちゅうい",dt:"#f57c00"},crown:{bg:"rgba(41,121,184,.8)",bd:"#1a5a9a",lb:"かぶせ物",dt:"#2979b8"}};
 var TO = ["歯のクリーニングです","むし歯の治療です","むし歯の予防（フッ素・シーラント）です"];
 var NO = ["歯のクリーニング","むし歯の治療","むし歯の予防","歯みがきチェック","フッ素塗布","クリーニング","矯正チェック","シーラント"];
 
+var currentPatient = null;
+var visitDates = [];
+
+function today() {
+  return new Date().toISOString().slice(0,10);
+}
+
+function formatDateJa(s) {
+  var p = String(s).split("T")[0].split("-");
+  if (p.length !== 3) return s;
+  return p[0] + "年" + Number(p[1]) + "月" + Number(p[2]) + "日";
+}
+
 function init() {
   var pid = new URLSearchParams(location.search).get("patient");
   if (!pid) { err("URLにカルテ番号が含まれていません"); return; }
   document.getElementById("hs").textContent = "カルテ番号: " + pid;
+
   fetch(GAS_URL + "?action=getPatient&patientId=" + encodeURIComponent(pid))
     .then(function(r){ return r.json(); })
     .then(function(d){
       if (!d || !d.patient) { err("データを読み込めませんでした"); return; }
+      currentPatient = d.patient;
+      document.getElementById("hs").textContent = d.patient.name + " さん専用ノート";
       render(d.patient, d.latestRecord);
+      return fetch(GAS_URL + "?action=getRecordDates&patientId=" + encodeURIComponent(pid));
+    })
+    .then(function(r){ return r ? r.json() : null; })
+    .then(function(d){
+      if (!d || !d.dates) return;
+      visitDates = d.dates;
+      renderDateSelector(visitDates);
     })
     .catch(function(){ err("データを読み込めませんでした"); });
+}
+
+function renderDateSelector(dates) {
+  var wrap = document.getElementById("dsel-wrap");
+  if (!wrap || !dates.length) return;
+  var todayStr = today();
+  var options = dates.map(function(d){
+    var isToday = d === todayStr;
+    var label = isToday ? formatDateJa(d) + "（本日）" : formatDateJa(d);
+    return '<option value="' + d + '">' + label + '</option>';
+  }).join("");
+  var firstDate = dates[0];
+  var isFirstToday = firstDate === todayStr;
+  var badge = isFirstToday
+    ? '<span class="dbadge today">⭐ 本日</span>'
+    : '<span class="dbadge past">📋 ' + formatDateJa(firstDate) + '</span>';
+  wrap.innerHTML =
+    '<label>📅 来院日：</label>' +
+    '<select class="dsel" id="dateSelect" onchange="changeDate(this.value)">' + options + '</select>' +
+    '<span id="dbadge-wrap">' + badge + '</span>';
+}
+
+function changeDate(date) {
+  if (!currentPatient) return;
+  var pid = currentPatient.patientId;
+  var bwrap = document.getElementById("dbadge-wrap");
+  var isToday = date === today();
+  if (bwrap) {
+    bwrap.innerHTML = isToday
+      ? '<span class="dbadge today">⭐ 本日</span>'
+      : '<span class="dbadge past">📋 ' + formatDateJa(date) + '</span>';
+  }
+  fetch(GAS_URL + "?action=getRecordByDate&patientId=" + encodeURIComponent(pid) + "&date=" + encodeURIComponent(date))
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      renderRecord(d && d.record ? d.record : null);
+    })
+    .catch(function(){ renderRecord(null); });
 }
 
 function fd(s) {
@@ -100,19 +168,27 @@ function br(s) {
 }
 
 function render(p, rec) {
-  document.getElementById("hs").textContent = p.name + " さん専用ノート";
   var dt = rec ? fd(rec.date) : {};
   var h = "";
   h += '<div class="card"><div class="ch">&#x1F464; 患者さん情報</div><div class="cb"><div class="pb">';
   h += '<div class="av">' + (p.name||"?")[0] + "</div>";
   h += '<div class="pi"><h2>' + p.name + "</h2><p>カルテ #" + p.patientId + "</p></div>";
-  if (dt.y) h += '<div class="vc"><div class="vm">' + dt.m + '月</div><div class="vd">' + dt.d + '日</div><div class="vm">' + dt.y + '</div></div>';
-  h += "</div></div></div>";
+  if (dt.y) h += '<div class="vc"><div class="vm">' + dt.m + '月</div><div class="vd">' + dt.d + '日</div><div class="vm">' + dt.y + "</div></div>";
+  h += "</div>";
+  h += '<div class="dsel-wrap" id="dsel-wrap"></div>';
+  h += "</div></div>";
+  h += '<div id="record-area"></div>';
+  document.getElementById("app").innerHTML = h;
+  renderRecord(rec);
+}
 
+function renderRecord(rec) {
+  var area = document.getElementById("record-area");
+  if (!area) return;
+  var h = "";
   h += '<div class="card"><div class="ch">&#x1F9B7; はのようす</div><div class="cb">';
   h += '<div class="tw"><img class="ti" id="ti" src="teeth_chart.png" alt="歯式図"><div class="to" id="to"></div></div>';
   h += '<div class="lr" id="lr"></div></div></div>';
-
   if (rec) {
     h += '<div class="card"><div class="ch">&#x1F4CB; きょうおこなったのは</div><div class="cb"><div class="cl" id="tl"></div></div></div>';
     if (rec.clinicMessage) {
@@ -123,10 +199,9 @@ function render(p, rec) {
     }
     h += '<div class="stamp"><span class="big">&#x2B50;</span>きょうもよくがんばりました！</div>';
   } else {
-    h += '<div class="eb">まだ記録がありません</div>';
+    h += '<div class="eb">この日の記録はありません</div>';
   }
-
-  document.getElementById("app").innerHTML = h;
+  area.innerHTML = h;
   rTeeth(rec ? (rec.teethData||{}) : {});
   if (rec) {
     rToday(rec.todayDone||[], rec.treatmentNote);
@@ -175,17 +250,18 @@ function rToday(done, note) {
   for (var i=0;i<TO.length;i++) {
     var on = done.indexOf(TO[i])>=0;
     if (!on) continue;
-    h += "<div class=\"ci on\"><div class=\"cb2 on\">&#x2713;</div>" + TO[i] + "</div>";
+    h += '<div class="ci on"><div class="cb2 on">&#x2713;</div>' + TO[i] + "</div>";
   }
-  if (note) h += "<div style=\"margin-top:8px;padding:13px 15px;background:linear-gradient(135deg,#e8f5ee,#f0faf5);border:2px solid #a5d6b0;border-radius:0 14px 14px 14px;font-size:.92rem;line-height:1.7;color:#1a4a2e;\">" + br(note) + "</div>";
+  if (note) h += '<div style="margin-top:8px;padding:13px 15px;background:linear-gradient(135deg,#e8f5ee,#f0faf5);border:2px solid #a5d6b0;border-radius:0 14px 14px 14px;font-size:.92rem;line-height:1.7;color:#1a4a2e;">' + br(note) + "</div>";
   el.innerHTML = h;
 }
+
 function rNext(plan) {
   var el = document.getElementById("nl"); if (!el) return;
   var h = "";
   for (var i=0;i<NO.length;i++) {
     var on = plan.indexOf(NO[i])>=0;
-    h += '<div class="ni'+(on?" on":"")+'"><div class="nc '+(on?"on":"off")+'">'+(on?"&#x2713;":"")+'</div>'+NO[i]+'</div>';
+    h += '<div class="ni'+(on?" on":"")+'"><div class="nc '+(on?"on":"off")+'">' + (on?"&#x2713;":"") + '</div>'+NO[i]+'</div>';
   }
   el.innerHTML = h;
 }
