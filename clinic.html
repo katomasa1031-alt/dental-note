@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>歯科電子治療ノート｜医院管理画面 v20260605162630</title>
+<title>歯科電子治療ノート｜医院管理画面 v20260607000000</title>
 <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <style>
@@ -59,7 +59,7 @@
   .form-group{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;}
   .form-group label{font-size:.8rem;font-weight:700;color:var(--muted);}
   textarea,input[type="text"],input[type="date"]{font-family:inherit;font-size:.9rem;color:var(--text);border:1.5px solid var(--border);border-radius:8px;padding:8px 12px;background:var(--surface);outline:none;transition:border-color .15s;}
-  textarea{resize:vertical;min-height:80px;}
+  textarea{resize:vertical;min-height:80px;width:100%;}
   textarea:focus,input:focus{border-color:var(--accent);}
   .checklist{display:flex;flex-direction:column;gap:6px;}
   .check-item{display:flex;align-items:center;gap:10px;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);cursor:pointer;font-size:.88rem;transition:all .12s;}
@@ -319,12 +319,12 @@ function renderMain(p){
       <div class="card-title">📋 今日治療したこと</div>
       <div class="form-group"><label>治療日</label><input type="date" id="recDate" value="${currentRecord.date||today()}"></div>
       <div class="form-group"><label>きょうおこなったのは</label><div class="checklist" id="todayDoneList"></div></div>
-      <div class="form-group" style="margin-top:8px;"><label>治療内容（詳細メモ）</label><textarea id="treatmentNote" placeholder="例: 右下6番の虫歯を削って詰め物をしました。" style="min-height:100px;">${currentRecord.treatmentNote}</textarea></div>
+      <div class="form-group" style="margin-top:8px;"><label>治療内容（詳細メモ）</label><textarea id="treatmentNote" placeholder="例: 右下6番の虫歯を削って詰め物をしました。" style="min-height:100px;width:100%;">${currentRecord.treatmentNote}</textarea></div>
     </div>
     <div class="card">
       <div class="card-title">💬 医院からのメッセージ</div>
       <div id="quickMsgArea" style="margin-bottom:10px;"></div>
-      <textarea id="clinicMessage" placeholder="例: 歯みがきをがんばっています！次回もお待ちしています🦷" style="min-height:100px;">${currentRecord.clinicMessage}</textarea>
+      <div class="form-group" style="margin-top:8px;"><label>メッセージ内容</label><textarea id="clinicMessage" placeholder="例: 歯みがきをがんばっています！次回もお待ちしています🦷" style="min-height:100px;width:100%;">${currentRecord.clinicMessage}</textarea></div>
     </div>
     <div class="card">
       <div class="card-title">📅 次回の治療予定</div>
