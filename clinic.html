@@ -1073,7 +1073,12 @@ function showQR(pid,name){
 }
 
 function closePopup(id){document.getElementById(id).classList.remove('open');}
-function today(){return new Date().toISOString().slice(0,10);}
+function today(){
+  // UTCではなくJST（UTC+9）で今日の日付を返す
+  const d = new Date();
+  d.setTime(d.getTime() + 9*60*60*1000);
+  return d.toISOString().slice(0,10);
+}
 function formatDateJa(dateStr){
   // "2026-06-07" → "2026年6月7日"
   const [y,m,d]=dateStr.split('-');

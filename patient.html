@@ -80,7 +80,9 @@ var currentPatient = null;
 var visitDates = [];
 
 function today() {
-  return new Date().toISOString().slice(0,10);
+  var d = new Date();
+  d.setTime(d.getTime() + 9*60*60*1000);
+  return d.toISOString().slice(0,10);
 }
 
 function formatDateJa(s) {
