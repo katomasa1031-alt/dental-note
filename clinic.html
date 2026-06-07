@@ -404,7 +404,7 @@ function renderVisitBar(){
   }
   visitDates.forEach(d=>{
     const isToday = d===today();
-    const label = isToday ? `📝 ${d}（本日）` : `📋 ${d}`;
+    const label = isToday ? `📝 ${formatDateJa(d)}（本日）` : `📋 ${formatDateJa(d)}`;
     const sel = (!isViewingPast && isToday) || (isViewingPast && currentRecord.date===d) ? 'selected' : '';
     options += `<option value="${d}" ${sel}>${label}</option>`;
   });
@@ -1074,6 +1074,11 @@ function showQR(pid,name){
 
 function closePopup(id){document.getElementById(id).classList.remove('open');}
 function today(){return new Date().toISOString().slice(0,10);}
+function formatDateJa(dateStr){
+  // "2026-06-07" → "2026年6月7日"
+  const [y,m,d]=dateStr.split('-');
+  return `${y}年${parseInt(m)}月${parseInt(d)}日`;
+}
 function toast(msg){
   const el=document.getElementById('toast');
   el.textContent=msg; el.classList.add('show');
