@@ -64,9 +64,11 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--tx);min-he
 <div class="con" id="app"></div>
 <script>
 var GAS_URL = "https://script.google.com/macros/s/AKfycbz2qrHdZBz8g4mkO55CuDZWZLmbCC4dDxM_lTfZZPzVnjOb97OtAaEQAiuj3waFtKRK/exec";
-var TP = {"11":{cx:46.6,cy:11.6,r:1.9},"12":{cx:41.3,cy:12.4,r:1.9},"13":{cx:36.1,cy:14.0,r:2.1},"14":{cx:31.2,cy:16.3,r:2.3},"15":{cx:26.7,cy:19.2,r:2.5},"16":{cx:22.6,cy:22.8,r:3.0},"17":{cx:18.6,cy:27.4,r:3.0},"18":{cx:15.2,cy:33.1,r:3.2},"21":{cx:53.4,cy:11.6,r:1.9},"22":{cx:58.7,cy:12.4,r:1.9},"23":{cx:63.9,cy:14.0,r:2.1},"24":{cx:68.8,cy:16.3,r:2.3},"25":{cx:73.3,cy:19.2,r:2.5},"26":{cx:77.4,cy:22.8,r:3.0},"27":{cx:81.3,cy:27.4,r:3.0},"28":{cx:84.8,cy:33.1,r:3.2},"31":{cx:53.4,cy:88.4,r:1.9},"32":{cx:58.7,cy:87.6,r:1.9},"33":{cx:63.9,cy:86.0,r:2.1},"34":{cx:68.8,cy:83.7,r:2.3},"35":{cx:73.3,cy:80.8,r:2.5},"36":{cx:77.4,cy:77.3,r:3.0},"37":{cx:81.3,cy:72.6,r:3.0},"38":{cx:84.8,cy:66.9,r:3.2},"41":{cx:46.6,cy:88.4,r:1.9},"42":{cx:41.3,cy:87.6,r:1.9},"43":{cx:36.1,cy:86.0,r:2.1},"44":{cx:31.2,cy:83.7,r:2.3},"45":{cx:26.7,cy:80.8,r:2.5},"46":{cx:22.6,cy:77.3,r:3.0},"47":{cx:18.6,cy:72.6,r:3.0},"48":{cx:15.2,cy:66.9,r:3.2},"51":{cx:46.5,cy:25.6,r:1.7},"52":{cx:42.3,cy:26.6,r:1.7},"53":{cx:38.3,cy:28.3,r:1.9},"54":{cx:34.6,cy:30.6,r:2.1},"55":{cx:31.4,cy:33.5,r:2.3},"61":{cx:53.5,cy:25.6,r:1.7},"62":{cx:57.7,cy:26.6,r:1.7},"63":{cx:61.7,cy:28.3,r:1.9},"64":{cx:65.4,cy:30.6,r:2.1},"65":{cx:68.6,cy:33.5,r:2.3},"71":{cx:53.5,cy:74.4,r:1.7},"72":{cx:57.7,cy:73.4,r:1.7},"73":{cx:61.7,cy:71.7,r:1.9},"74":{cx:65.4,cy:69.4,r:2.1},"75":{cx:68.6,cy:66.5,r:2.3},"81":{cx:46.5,cy:74.4,r:1.7},"82":{cx:42.3,cy:73.4,r:1.7},"83":{cx:38.3,cy:71.7,r:1.9},"84":{cx:34.6,cy:69.4,r:2.1},"85":{cx:31.4,cy:66.5,r:2.3}};
+var TP = {"11":{cx:46.55,cy:10.56,r:2.38},"12":{cx:41.12,cy:11.44,r:2.38},"13":{cx:35.85,cy:13.04,r:2.38},"14":{cx:30.85,cy:15.38,r:2.38},"15":{cx:26.23,cy:18.4,r:2.38},"16":{cx:22.07,cy:22.0,r:2.38},"17":{cx:18.05,cy:26.73,r:2.38},"18":{cx:14.5,cy:32.65,r:2.38},"21":{cx:53.45,cy:10.56,r:2.38},"22":{cx:58.88,cy:11.44,r:2.38},"23":{cx:64.15,cy:13.04,r:2.38},"24":{cx:69.15,cy:15.38,r:2.38},"25":{cx:73.78,cy:18.4,r:2.38},"26":{cx:77.92,cy:22.0,r:2.38},"27":{cx:81.95,cy:26.73,r:2.38},"28":{cx:85.5,cy:32.65,r:2.38},"31":{cx:53.45,cy:89.44,r:2.38},"32":{cx:58.88,cy:88.56,r:2.38},"33":{cx:64.15,cy:86.96,r:2.38},"34":{cx:69.15,cy:84.62,r:2.38},"35":{cx:73.78,cy:81.6,r:2.38},"36":{cx:77.92,cy:78.0,r:2.38},"37":{cx:81.95,cy:73.27,r:2.38},"38":{cx:85.5,cy:67.35,r:2.38},"41":{cx:46.55,cy:89.44,r:2.38},"42":{cx:41.12,cy:88.56,r:2.38},"43":{cx:35.85,cy:86.96,r:2.38},"44":{cx:30.85,cy:84.62,r:2.38},"45":{cx:26.23,cy:81.6,r:2.38},"46":{cx:22.07,cy:78.0,r:2.38},"47":{cx:18.05,cy:73.27,r:2.38},"48":{cx:14.5,cy:67.35,r:2.38},"51":{cx:46.42,cy:24.83,r:1.88},"52":{cx:42.05,cy:25.83,r:1.88},"53":{cx:37.9,cy:27.56,r:1.88},"54":{cx:34.15,cy:29.98,r:1.88},"55":{cx:30.88,cy:33.0,r:1.88},"61":{cx:53.58,cy:24.83,r:1.88},"62":{cx:57.95,cy:25.83,r:1.88},"63":{cx:62.1,cy:27.56,r:1.88},"64":{cx:65.85,cy:29.98,r:1.88},"65":{cx:69.12,cy:33.0,r:1.88},"71":{cx:53.58,cy:75.17,r:1.88},"72":{cx:57.95,cy:74.17,r:1.88},"73":{cx:62.1,cy:72.44,r:1.88},"74":{cx:65.85,cy:70.02,r:1.88},"75":{cx:69.12,cy:67.0,r:1.88},"81":{cx:46.42,cy:75.17,r:1.88},"82":{cx:42.05,cy:74.17,r:1.88},"83":{cx:37.9,cy:72.44,r:1.88},"84":{cx:34.15,cy:70.02,r:1.88},"85":{cx:30.88,cy:67.0,r:1.88}};
 var TL = {"11":"1","12":"2","13":"3","14":"4","15":"5","16":"6","17":"7","18":"8","21":"1","22":"2","23":"3","24":"4","25":"5","26":"6","27":"7","28":"8","31":"1","32":"2","33":"3","34":"4","35":"5","36":"6","37":"7","38":"8","41":"1","42":"2","43":"3","44":"4","45":"5","46":"6","47":"7","48":"8","51":"A","52":"B","53":"C","54":"D","55":"E","61":"A","62":"B","63":"C","64":"D","65":"E","71":"A","72":"B","73":"C","74":"D","75":"E","81":"A","82":"B","83":"C","84":"D","85":"E"};
-var SC = {cavity:{bg:"rgba(224,80,80,.8)",bd:"#c03030",lb:"むし歯",dt:"#e05050"},treated:{bg:"rgba(45,156,99,.8)",bd:"#1a7a50",lb:"ちりょう済",dt:"#2d9c63"},watch:{bg:"rgba(245,124,0,.8)",bd:"#c06000",lb:"ようちゅうい",dt:"#f57c00"},crown:{bg:"rgba(41,121,184,.8)",bd:"#1a5a9a",lb:"かぶせ物",dt:"#2979b8"}};
+var FRONT_SET = {"11":1,"12":1,"13":1,"21":1,"22":1,"23":1,"31":1,"32":1,"33":1,"41":1,"42":1,"43":1,"51":1,"52":1,"53":1,"61":1,"62":1,"63":1,"71":1,"72":1,"73":1,"81":1,"82":1,"83":1};
+var SC_MAP = {normal:{fill:"#ffffff",stroke:"#ccc"},cavity:{fill:"#fde8e8",stroke:"#e24b4a"},treated:{fill:"#e8f5ee",stroke:"#1d9e75"},watch:{fill:"#fef3e2",stroke:"#ef9f27"},filling:{fill:"#f0ebff",stroke:"#8b6fd4"},crown:{fill:"#e4f0f8",stroke:"#378add"}};
+var SC_LEGEND = {cavity:{dt:"#e24b4a",lb:"むし歯"},treated:{dt:"#1d9e75",lb:"ちりょう済"},watch:{dt:"#ef9f27",lb:"ようちゅうい"},filling:{dt:"#8b6fd4",lb:"つめ物"},crown:{dt:"#378add",lb:"かぶせ物"}};
 var TO = ["歯のクリーニングです","むし歯の治療です","むし歯の予防（フッ素・シーラント）です"];
 var NO = ["歯のクリーニング","むし歯の治療","むし歯の予防","歯みがきチェック","フッ素塗布","クリーニング","矯正チェック","シーラント"];
 
@@ -124,20 +126,12 @@ function renderDateSelector(dates) {
     : '<span class="dbadge past">📋 ' + formatDateJa(firstDate) + '</span>';
   wrap.innerHTML =
     '<label>📅 来院日：</label>' +
-    '<select class="dsel" id="dateSelect" onchange="changeDate(this.value)">' + options + '</select>' +
-    '<span id="dbadge-wrap">' + badge + '</span>';
+    '<select class="dsel" id="dateSelect" onchange="changeDate(this.value)">' + options + '</select>';
 }
 
 function changeDate(date) {
   if (!currentPatient) return;
   var pid = currentPatient.patientId;
-  var bwrap = document.getElementById("dbadge-wrap");
-  var isToday = date === today();
-  if (bwrap) {
-    bwrap.innerHTML = isToday
-      ? '<span class="dbadge today">⭐ 本日</span>'
-      : '<span class="dbadge past">📋 ' + formatDateJa(date) + '</span>';
-  }
   fetch(GAS_URL + "?action=getRecordByDate&patientId=" + encodeURIComponent(pid) + "&date=" + encodeURIComponent(date))
     .then(function(r){ return r.json(); })
     .then(function(d){
@@ -167,9 +161,7 @@ function render(p, rec) {
   var dt = rec ? fd(rec.date) : {};
   var h = "";
   h += '<div class="card"><div class="ch">&#x1F464; 患者さん情報</div><div class="cb"><div class="pb">';
-  h += '<div class="av">' + (p.name||"?")[0] + "</div>";
   h += '<div class="pi"><h2>' + p.name + "</h2><p>カルテ #" + p.patientId + "</p></div>";
-  if (dt.y) h += '<div class="vc"><div class="vm">' + dt.m + '月</div><div class="vd">' + dt.d + '日</div><div class="vm">' + dt.y + "</div></div>";
   h += "</div>";
   h += '<div class="dsel-wrap" id="dsel-wrap"></div>';
   h += "</div></div>";
@@ -209,27 +201,85 @@ function rTeeth(td) {
   var svg = document.getElementById("teethSVG");
   var lg  = document.getElementById("lr");
   if (!svg) return;
-
   var W = 400, H = 480;
   var ns = "http://www.w3.org/2000/svg";
 
-  function el(tag, attrs) {
+  function mkEl(tag, attrs) {
     var e = document.createElementNS(ns, tag);
     for (var k in attrs) e.setAttribute(k, attrs[k]);
     return e;
+  }
+  function addTxt(x, y, t, size, color) {
+    var e = mkEl("text", {x:x, y:y, "text-anchor":"middle", "dominant-baseline":"middle",
+      "font-size":size||11, fill:color||"#2d9c63", "font-family":"Nunito,sans-serif", "font-weight":"700"});
+    e.textContent = t; svg.appendChild(e);
+  }
+  function faceColor(num, faceId) {
+    var key = num + "_" + faceId;
+    var s = td[key] || "normal";
+    return SC_MAP[s] || SC_MAP.normal;
+  }
+  function drawFront(cx, cy, r) {
+    // 前歯: 4分割（X線）
+    var r45 = r / Math.sqrt(2);
+    var TLx=cx-r45, TLy=cy-r45, TRx=cx+r45, TRy=cy-r45;
+    var BLx=cx-r45, BLy=cy+r45, BRx=cx+r45, BRy=cy+r45;
+    var clipId = "fc_"+cx+"_"+cy;
+    var defs = svg.querySelector("defs");
+    if (!defs) { defs = mkEl("defs", {}); svg.insertBefore(defs, svg.firstChild); }
+    var cp = mkEl("clipPath", {id: clipId});
+    cp.appendChild(mkEl("circle", {cx:cx, cy:cy, r:r}));
+    defs.appendChild(cp);
+    var faces = [
+      {id:"buccal",  d:"M"+cx+" "+cy+" L"+TLx+" "+TLy+" A"+r+" "+r+" 0 0 1 "+TRx+" "+TRy+" Z"},
+      {id:"distal",  d:"M"+cx+" "+cy+" L"+TRx+" "+TRy+" A"+r+" "+r+" 0 0 1 "+BRx+" "+BRy+" Z"},
+      {id:"lingual", d:"M"+cx+" "+cy+" L"+BRx+" "+BRy+" A"+r+" "+r+" 0 0 1 "+BLx+" "+BLy+" Z"},
+      {id:"mesial",  d:"M"+cx+" "+cy+" L"+BLx+" "+BLy+" A"+r+" "+r+" 0 0 1 "+TLx+" "+TLy+" Z"},
+    ];
+    faces.forEach(function(f) {
+      var c = faceColor(num, f.id);
+      svg.appendChild(mkEl("path", {d:f.d, fill:c.fill, stroke:c.stroke,
+        "stroke-width":"0.8", "clip-path":"url(#"+clipId+")"}));
+    });
+    // X線
+    svg.appendChild(mkEl("line", {x1:TLx,y1:TLy,x2:BRx,y2:BRy,stroke:"#ccc","stroke-width":"0.5"}));
+    svg.appendChild(mkEl("line", {x1:TRx,y1:TRy,x2:BLx,y2:BLy,stroke:"#ccc","stroke-width":"0.5"}));
+    // 外周
+    svg.appendChild(mkEl("circle", {cx:cx,cy:cy,r:r,fill:"none",stroke:"#c8bfb0","stroke-width":"1"}));
+  }
+  function drawMolar(num, cx, cy, r) {
+    var rIn = r * 0.38;
+    function pt(a, rr) {
+      var rad = (a - 90) * Math.PI / 180;
+      return [cx + rr * Math.cos(rad), cy + rr * Math.sin(rad)];
+    }
+    // 外周
+    svg.appendChild(mkEl("circle", {cx:cx,cy:cy,r:r,fill:"none",stroke:"#c8bfb0","stroke-width":"1"}));
+    var sectors = [
+      {id:"buccal", a1:315,a2:45},
+      {id:"mesial", a1:45, a2:135},
+      {id:"lingual",a1:135,a2:225},
+      {id:"distal", a1:225,a2:315},
+    ];
+    sectors.forEach(function(s) {
+      var c = faceColor(num, s.id);
+      var ox1=pt(s.a1,r), ox2=pt(s.a2,r), ix1=pt(s.a1,rIn), ix2=pt(s.a2,rIn);
+      var laf = ((s.a2-s.a1+360)%360) > 180 ? 1 : 0;
+      var d = "M"+ix1[0]+" "+ix1[1]+" L"+ox1[0]+" "+ox1[1]+" A"+r+" "+r+" 0 "+laf+" 1 "+ox2[0]+" "+ox2[1]+" L"+ix2[0]+" "+ix2[1]+" A"+rIn+" "+rIn+" 0 "+laf+" 0 "+ix1[0]+" "+ix1[1]+" Z";
+      svg.appendChild(mkEl("path", {d:d, fill:c.fill, stroke:c.stroke, "stroke-width":"0.8"}));
+    });
+    // 中央
+    var cc = faceColor(num, "occlusal");
+    svg.appendChild(mkEl("circle", {cx:cx,cy:cy,r:rIn,fill:cc.fill,stroke:cc.stroke,"stroke-width":"0.8"}));
   }
 
   svg.innerHTML = "";
 
   // 中心線
-  svg.appendChild(el("line", {x1:W/2,y1:12,x2:W/2,y2:H-12,stroke:"#e0d0c0","stroke-width":"0.8","stroke-dasharray":"3,2"}));
-  svg.appendChild(el("line", {x1:12,y1:H/2,x2:W-12,y2:H/2,stroke:"#e0d0c0","stroke-width":"0.8","stroke-dasharray":"3,2"}));
+  svg.appendChild(mkEl("line", {x1:W/2,y1:12,x2:W/2,y2:H-12,stroke:"#e0d0c0","stroke-width":"0.8","stroke-dasharray":"3,2"}));
+  svg.appendChild(mkEl("line", {x1:12,y1:H/2,x2:W-12,y2:H/2,stroke:"#e0d0c0","stroke-width":"0.8","stroke-dasharray":"3,2"}));
 
   // 上下左右ラベル
-  function addTxt(x, y, t, size, color) {
-    var tx = el("text", {x:x, y:y, "text-anchor":"middle", "dominant-baseline":"middle", "font-size":size||11, fill:color||"#2d9c63", "font-family":"Nunito,sans-serif", "font-weight":"700"});
-    tx.textContent = t; svg.appendChild(tx);
-  }
   addTxt(W/2, 7,   "上");
   addTxt(W/2, H-7, "下");
   addTxt(8,   H/2, "右");
@@ -237,39 +287,34 @@ function rTeeth(td) {
 
   var used = [];
 
-  for (var num in TP) {
-    var pos = TP[num];
+  for (var numStr in TP) {
+    var num = parseInt(numStr);
+    var pos = TP[numStr];
     var x = pos.cx/100 * W;
     var y = pos.cy/100 * H;
     var r = pos.r/100  * W;
-    var isDec = Number(num) >= 51;
-    var status = td[num];
-    var sc = status ? SC[status] : null;
 
-    // 歯の輪（状態なし: ベースカラー、状態あり: 状態色）
-    var strokeColor = isDec ? "#aad4f0" : "#f4a35a";
-    var fillColor   = sc ? sc.bg : "rgba(255,255,255,0.6)";
-    var ringStroke  = sc ? sc.bd : strokeColor;
+    if (FRONT_SET[numStr]) {
+      drawFront(x, y, r);
+    } else {
+      drawMolar(num, x, y, r);
+    }
 
-    svg.appendChild(el("circle", {
-      cx:x, cy:y, r:r,
-      fill: fillColor,
-      stroke: ringStroke,
-      "stroke-width": sc ? "2" : "1.5"
-    }));
-
-    // 歯番ラベル
-    var lbl = TL[num] || num;
-    var txtColor = sc ? "#fff" : (isDec ? "#5a8faa" : "#c07830");
-    addTxt(x, y, lbl, r * 1.05, txtColor);
-
-    if (sc && used.indexOf(status) < 0) used.push(status);
+    // 凡例収集（面単位でステータスを確認）
+    var allFaces = FRONT_SET[numStr]
+      ? ["buccal","distal","lingual","mesial"]
+      : ["occlusal","buccal","mesial","lingual","distal"];
+    allFaces.forEach(function(fid) {
+      var s = td[numStr+"_"+fid];
+      if (s && s !== "normal" && used.indexOf(s) < 0) used.push(s);
+    });
   }
 
   // 凡例
   var lh = "";
   for (var i = 0; i < used.length; i++) {
-    lh += '<div class="li"><div class="ld" style="background:' + SC[used[i]].dt + '"></div>' + SC[used[i]].lb + '</div>';
+    var leg = SC_LEGEND[used[i]];
+    if (leg) lh += '<div class="li"><div class="ld" style="background:'+leg.dt+'"></div>'+leg.lb+'</div>';
   }
   lg.innerHTML = lh;
 }
