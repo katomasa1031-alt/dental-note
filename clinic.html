@@ -164,6 +164,19 @@
   </div>
 </div>
 
+<!-- 患者削除ポップアップ -->
+<div class="overlay" id="deletePatientPopup">
+  <div class="popup" style="width:360px;">
+    <h3>🗑️ 患者を削除</h3>
+    <p id="deletePatientMsg" style="margin:12px 0;font-size:.95rem;line-height:1.6;"></p>
+    <p style="font-size:.82rem;color:#c03030;background:#fde8e8;border-radius:8px;padding:10px 12px;">この操作は取り消せません。患者情報とすべての診療記録が削除されます。</p>
+    <div class="popup-footer">
+      <button class="btn" onclick="closePopup('deletePatientPopup')">キャンセル</button>
+      <button class="btn" style="background:#e24b4a;color:#fff;border-color:#e24b4a;" onclick="deletePatient()">削除する</button>
+    </div>
+  </div>
+</div>
+
 <!-- QRポップアップ -->
 <div class="overlay" id="qrPopup">
   <div class="popup">
@@ -298,7 +311,7 @@ function renderPatientList(){
   const filt=patients.filter(p=>p.name.includes(q)||p.patientId.toString().includes(q));
   if(!filt.length){list.innerHTML='<div style="padding:20px;text-align:center;color:var(--muted);font-size:.85rem;">患者が見つかりません</div>';return;}
   list.innerHTML=filt.map(p=>`
-    <div class="patient-item ${p.patientId===selectedPid?'active':''}" onclick="selectPatient('${p.patientId}')">
+    <div class="patient-item ${p.patientId===selectedPid?'active':''}" onclick="selectPatient('${p.patientId}')" oncontextmenu="openDeletePatient(event,'${p.patientId}','${(p.name||'').replace(/'/g,String.fromCharCode(39))}')">
       <span class="pid">カルテ #${p.patientId}</span>
       <span class="pname">${p.name}</span>
       <span class="plast">${p.lastVisit?'最終来院: '+p.lastVisit:'来院記録なし'}</span>
@@ -328,20 +341,72 @@ async function selectPatient(pid){
 }
 
 // 過去の特定日付の記録を読み込む
+// 本日の未保存入力内容を一時保存するバッファ
+let todayDraft = null;
+
+function saveTodayDraft(){
+  // 現在のUI入力値をdraftに保存
+  const tn=document.getElementById('treatmentNote');
+  const cm=document.getElementById('clinicMessage');
+  const rd=document.getElementById('recDate');
+  todayDraft = {
+    teethData: JSON.parse(JSON.stringify(currentRecord.teethData||{})),
+    treatmentNote: tn ? tn.value : (currentRecord.treatmentNote||''),
+    clinicMessage:  cm ? cm.value : (currentRecord.clinicMessage||''),
+    nextPlan:  currentRecord.nextPlan||[],
+    todayDone: currentRecord.todayDone||[],
+    date: rd ? rd.value : today()
+  };
+}
+
 async function loadRecordByDate(date){
   if(!selectedPid) return;
-  const isTodayRecord = (date === 'new' || date === today());
+
+  // 今日の記録を閲覧中・編集中なら入力内容をdraftに退避
+  if(!isViewingPast){
+    saveTodayDraft();
+  }
 
   if(date === 'new'){
-    // 新規作成モード
     isViewingPast=false;
-    currentRecord={teethData:{},treatmentNote:'',clinicMessage:'',nextPlan:[],todayDone:[],date:today()};
+    // draftがあれば復元、なければ空
+    currentRecord = todayDraft
+      ? {...todayDraft}
+      : {teethData:{},treatmentNote:'',clinicMessage:'',nextPlan:[],todayDone:[],date:today()};
     renderVisitBar();
     refreshRecordUI();
     return;
   }
 
-  // 最新記録と同じ日付かどうかに関わらず、その日付の記録をGASから取得
+  // 今日の日付を選んだ場合
+  if(date === today()){
+    isViewingPast=false;
+    // まずGASから取得を試みる
+    try{
+      const d=await gasGet({action:'getRecordByDate',patientId:selectedPid,date});
+      if(d.record){
+        // 保存済みデータがある → それを使う（draftより保存済みを優先）
+        currentRecord={
+          teethData:d.record.teethData||{},treatmentNote:d.record.treatmentNote||'',
+          clinicMessage:d.record.clinicMessage||'',nextPlan:d.record.nextPlan||[],
+          todayDone:d.record.todayDone||[],date:d.record.date||date
+        };
+      } else if(todayDraft){
+        // 保存済みデータなし・draftあり → draft復元
+        currentRecord = {...todayDraft};
+      } else {
+        currentRecord={teethData:{},treatmentNote:'',clinicMessage:'',nextPlan:[],todayDone:[],date:today()};
+      }
+    }catch(e){
+      // 通信エラーでもdraftがあれば復元
+      if(todayDraft) currentRecord={...todayDraft};
+    }
+    renderVisitBar();
+    refreshRecordUI();
+    return;
+  }
+
+  // 過去の日付
   try{
     const d=await gasGet({action:'getRecordByDate',patientId:selectedPid,date});
     if(d.record){
@@ -350,8 +415,7 @@ async function loadRecordByDate(date){
         clinicMessage:d.record.clinicMessage||'',nextPlan:d.record.nextPlan||[],
         todayDone:d.record.todayDone||[],date:d.record.date||date
       };
-      // 今日の記録なら編集可能、過去なら閲覧のみ
-      isViewingPast = (date !== today());
+      isViewingPast = true;
     }
   }catch(e){ toast('⚠️ 記録の読み込みに失敗しました'); return; }
 
@@ -1095,6 +1159,7 @@ async function saveRecord(){
       todayDone:currentRecord.todayDone});
     if(res.error) throw new Error(res.error);
     toast('✅ 保存しました');
+    todayDraft = null; // 保存完了したのでdraftをクリア
     // 日付リスト更新
     try{
       const d=await gasGet({action:'getRecordDates',patientId:selectedPid});
@@ -1110,6 +1175,32 @@ function openAddPatient(){
   document.getElementById('newPatientName').value='';
   document.getElementById('newPatientBD').value='';
   document.getElementById('addPatientPopup').classList.add('open');
+}
+
+let deleteTargetPid = null;
+function openDeletePatient(e, pid, name){
+  e.preventDefault();
+  e.stopPropagation();
+  deleteTargetPid = pid;
+  document.getElementById('deletePatientMsg').textContent =
+    `「${name}」（カルテ #${pid}）を削除しますか？`;
+  document.getElementById('deletePatientPopup').classList.add('open');
+}
+
+async function deletePatient(){
+  if(!deleteTargetPid) return;
+  try{
+    const res = await gasPost({action:'deletePatient', patientId:deleteTargetPid});
+    if(res.error) throw new Error(res.error);
+    toast('🗑️ 患者を削除しました');
+    closePopup('deletePatientPopup');
+    if(selectedPid === deleteTargetPid){
+      selectedPid=null;
+      document.getElementById('mainArea').innerHTML='<div class="empty-state"><p>患者を選択してください</p></div>';
+    }
+    deleteTargetPid=null;
+    loadPatients();
+  }catch(e){ toast('⚠️ 削除エラー: '+e.message); }
 }
 async function addPatient(){
   const pid=document.getElementById('newPatientId').value.trim();
