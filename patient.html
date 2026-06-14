@@ -175,7 +175,7 @@ function renderRecord(rec) {
   if (!area) return;
   var h = "";
   h += '<div class="card"><div class="ch">&#x1F9B7; はのようす</div><div class="cb">';
-  h += '<div class="tw"><svg id="teethSVG" viewBox="0 79.7 664 704.6" width="100%" style="max-width:360px;display:block;margin:0 auto;"></svg></div>';
+  h += '<div class="tw"><svg id="teethSVG" viewBox="0 54.7 664 754.6" width="100%" style="max-width:360px;display:block;margin:0 auto;"></svg></div>';
   h += '<div class="lr" id="lr"></div></div></div>';
   if (rec) {
     h += '<div class="card"><div class="ch">&#x1F4CB; きょうおこなったのは</div><div class="cb"><div class="cl" id="tl"></div></div></div>';
@@ -280,8 +280,8 @@ function rTeeth(td) {
   svg.appendChild(mkEl("line", {x1:8,y1:H/2,x2:W-8,y2:H/2,stroke:"#e0d0c0","stroke-width":"1","stroke-dasharray":"4,3"}));
 
   // 上下左右ラベル
-  addTxt(W/2, 99.7, "上", 17);
-  addTxt(W/2, 764.3, "下", 17);
+  addTxt(W/2, 76.7, "上", 17);
+  addTxt(W/2, 787.3, "下", 17);
   addTxt(16,   H/2, "右", 17);
   addTxt(W-16, H/2, "左", 17);
 
