@@ -67,8 +67,8 @@ var GAS_URL = "https://script.google.com/macros/s/AKfycbz2qrHdZBz8g4mkO55CuDZWZL
 var TP = {"11":{cx:46.38,cy:14.32,r:3.31},"12":{cx:39.3,cy:15.88,r:3.31},"13":{cx:32.68,cy:18.93,r:3.31},"14":{cx:27.28,cy:22.92,r:3.31},"15":{cx:22.7,cy:27.91,r:3.31},"16":{cx:19.42,cy:33.16,r:3.31},"17":{cx:17.06,cy:38.91,r:3.31},"18":{cx:15.7,cy:45.01,r:3.31},"21":{cx:53.62,cy:14.32,r:3.31},"22":{cx:60.7,cy:15.88,r:3.31},"23":{cx:67.32,cy:18.93,r:3.31},"24":{cx:72.72,cy:22.92,r:3.31},"25":{cx:77.3,cy:27.91,r:3.31},"26":{cx:80.58,cy:33.16,r:3.31},"27":{cx:82.94,cy:38.91,r:3.31},"28":{cx:84.3,cy:45.01,r:3.31},"31":{cx:53.62,cy:85.68,r:3.31},"32":{cx:60.7,cy:84.12,r:3.31},"33":{cx:67.32,cy:81.07,r:3.31},"34":{cx:72.72,cy:77.08,r:3.31},"35":{cx:77.3,cy:72.09,r:3.31},"36":{cx:80.58,cy:66.84,r:3.31},"37":{cx:82.94,cy:61.09,r:3.31},"38":{cx:84.3,cy:54.99,r:3.31},"41":{cx:46.38,cy:85.68,r:3.31},"42":{cx:39.3,cy:84.12,r:3.31},"43":{cx:32.68,cy:81.07,r:3.31},"44":{cx:27.28,cy:77.08,r:3.31},"45":{cx:22.7,cy:72.09,r:3.31},"46":{cx:19.42,cy:66.84,r:3.31},"47":{cx:17.06,cy:61.09,r:3.31},"48":{cx:15.7,cy:54.99,r:3.31},"51":{cx:46.86,cy:31.89,r:2.56},"52":{cx:41.54,cy:33.04,r:2.56},"53":{cx:36.72,cy:35.21,r:2.56},"54":{cx:32.69,cy:38.25,r:2.56},"55":{cx:29.7,cy:41.98,r:2.56},"61":{cx:53.14,cy:31.89,r:2.56},"62":{cx:58.46,cy:33.04,r:2.56},"63":{cx:63.28,cy:35.21,r:2.56},"64":{cx:67.31,cy:38.25,r:2.56},"65":{cx:70.3,cy:41.98,r:2.56},"71":{cx:53.14,cy:68.11,r:2.56},"72":{cx:58.46,cy:66.96,r:2.56},"73":{cx:63.28,cy:64.79,r:2.56},"74":{cx:67.31,cy:61.75,r:2.56},"75":{cx:70.3,cy:58.02,r:2.56},"81":{cx:46.86,cy:68.11,r:2.56},"82":{cx:41.54,cy:66.96,r:2.56},"83":{cx:36.72,cy:64.79,r:2.56},"84":{cx:32.69,cy:61.75,r:2.56},"85":{cx:29.7,cy:58.02,r:2.56}};
 var TL = {"11":"1","12":"2","13":"3","14":"4","15":"5","16":"6","17":"7","18":"8","21":"1","22":"2","23":"3","24":"4","25":"5","26":"6","27":"7","28":"8","31":"1","32":"2","33":"3","34":"4","35":"5","36":"6","37":"7","38":"8","41":"1","42":"2","43":"3","44":"4","45":"5","46":"6","47":"7","48":"8","51":"A","52":"B","53":"C","54":"D","55":"E","61":"A","62":"B","63":"C","64":"D","65":"E","71":"A","72":"B","73":"C","74":"D","75":"E","81":"A","82":"B","83":"C","84":"D","85":"E"};
 var FRONT_SET = {"11":1,"12":1,"13":1,"21":1,"22":1,"23":1,"31":1,"32":1,"33":1,"41":1,"42":1,"43":1,"51":1,"52":1,"53":1,"61":1,"62":1,"63":1,"71":1,"72":1,"73":1,"81":1,"82":1,"83":1};
-var SC_MAP = {normal:{fill:"#ffffff",stroke:"#ccc"},cavity:{fill:"#fde8e8",stroke:"#e24b4a"},treated:{fill:"#e8f5ee",stroke:"#1d9e75"},watch:{fill:"#fef3e2",stroke:"#ef9f27"},filling:{fill:"#f0ebff",stroke:"#8b6fd4"},crown:{fill:"#e4f0f8",stroke:"#378add"},sealant:{fill:"#e0f7f0",stroke:"#1d9e75"},extraction:{fill:"#fff9c4",stroke:"#f5c800"}};
-var SC_LEGEND = {cavity:{dt:"#e24b4a",lb:"むし歯"},treated:{dt:"#1d9e75",lb:"ちりょう済"},watch:{dt:"#ef9f27",lb:"ようちゅうい"},filling:{dt:"#8b6fd4",lb:"つめ物"},crown:{dt:"#378add",lb:"かぶせ物"},sealant:{dt:"#1d9e75",lb:"シーラント"},extraction:{dt:"#f5c800",lb:"抜歯"}};
+var SC_MAP = {normal:{fill:"#ffffff",stroke:"#ccc"},cavity:{fill:"#fde8e8",stroke:"#e24b4a"},treated:{fill:"#e8f5ee",stroke:"#1d9e75"},watch:{fill:"#fef3e2",stroke:"#ef9f27"},filling:{fill:"#f0ebff",stroke:"#8b6fd4"},crown:{fill:"#e4f0f8",stroke:"#378add"},sealant:{fill:"#e0f7f0",stroke:"#1d9e75"},extraction:{fill:"#fff9c4",stroke:"#f5c800"},erupting:{fill:"#ffe8e8",stroke:"#e24b4a"}};
+var SC_LEGEND = {cavity:{dt:"#e24b4a",lb:"むし歯"},treated:{dt:"#1d9e75",lb:"ちりょう済"},watch:{dt:"#ef9f27",lb:"ようちゅうい"},filling:{dt:"#8b6fd4",lb:"つめ物"},crown:{dt:"#378add",lb:"かぶせ物"},sealant:{dt:"#1d9e75",lb:"シーラント"},extraction:{dt:"#f5c800",lb:"抜歯"},erupting:{dt:"#e24b4a",lb:"はえてる"}};
 var TO = ["歯のクリーニングです","むし歯の治療です","むし歯の予防（フッ素・シーラント）です"];
 var NO = ["歯のクリーニング","むし歯の治療","むし歯の予防","歯みがきチェック","フッ素塗布","クリーニング","矯正チェック","シーラント"];
 
@@ -299,6 +299,7 @@ function rTeeth(td) {
       ? ["buccal","distal","lingual","mesial"]
       : ["occlusal","buccal","mesial","lingual","distal"];
     var isExt = allFaces.every(function(f){ return (td[numStr+"_"+f]||"normal")==="extraction"; });
+    var isErupt = allFaces.every(function(f){ return (td[numStr+"_"+f]||"normal")==="erupting"; });
 
     if (isExt) {
       svg.appendChild(mkEl("circle", {cx:x, cy:y, r:r, fill:"#fff9c4", stroke:"#f5c800", "stroke-width":"2"}));
@@ -307,6 +308,16 @@ function rTeeth(td) {
       lt.textContent = TL[numStr] || numStr;
       svg.appendChild(lt);
       if (used.indexOf("extraction") < 0) used.push("extraction");
+      continue;
+    }
+
+    if (isErupt) {
+      svg.appendChild(mkEl("circle", {cx:x, cy:y, r:r, fill:"#ffe8e8", stroke:"#e24b4a", "stroke-width":"2"}));
+      var et = mkEl("text", {x:x, y:y, "text-anchor":"middle", "dominant-baseline":"middle",
+        "font-size":r*0.72, "font-weight":"700", fill:"#a00000", "font-family":"Nunito,sans-serif"});
+      et.textContent = TL[numStr] || numStr;
+      svg.appendChild(et);
+      if (used.indexOf("erupting") < 0) used.push("erupting");
       continue;
     }
 

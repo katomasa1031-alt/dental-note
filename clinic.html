@@ -87,6 +87,7 @@
   .status-btn.s-crown   {color:#185fa5;background:#e4f0f8;border-color:#378add;}
   .status-btn.s-sealant    {color:#0f6e56;background:#e0f7f0;border-color:#1d9e75;}
   .status-btn.s-extraction {color:#8a6700;background:#fffbe0;border-color:#f5c800;}
+  .status-btn.s-erupting   {color:#a00000;background:#ffe8e8;border-color:#e24b4a;}
 
   /* QRポップアップ */
   #qrPopup .popup{width:300px;text-align:center;}
@@ -195,6 +196,7 @@ const STATUSES = [
   {id:'crown',      label:'被せ物（全体）', cls:'s-crown',      dot:'#378add'},
   {id:'sealant',    label:'シーラント',     cls:'s-sealant',    dot:'#1d9e75'},
   {id:'extraction', label:'抜歯',           cls:'s-extraction', dot:'#f5c800'},
+  {id:'erupting',   label:'歯が生えてる',   cls:'s-erupting',   dot:'#e24b4a'},
 ];
 const SC = {
   normal:     {fill:'#ffffff',   stroke:'#ccc'},
@@ -205,6 +207,7 @@ const SC = {
   crown:      {fill:'#e4f0f8',   stroke:'#378add'},
   sealant:    {fill:'#e0f7f0',   stroke:'#1d9e75'},
   extraction: {fill:'#fff9c4',   stroke:'#f5c800'},
+  erupting:   {fill:'#ffe8e8',   stroke:'#e24b4a'},
 };
 const CF='#378add', CS='#185fa5';
 
@@ -492,6 +495,10 @@ function isExtracted(toothNum){
   const faces = FRONT_TEETH.has(toothNum) ? FRONT_FACES : MOLAR_FACES;
   return faces.every(f => (currentRecord.teethData[toothNum+'_'+f.id]||'normal')==='extraction');
 }
+function isErupting(toothNum){
+  const faces = FRONT_TEETH.has(toothNum) ? FRONT_FACES : MOLAR_FACES;
+  return faces.every(f => (currentRecord.teethData[toothNum+'_'+f.id]||'normal')==='erupting');
+}
 
 function drawTeethChart(){
   const svg = document.getElementById('teethChartSVG');
@@ -722,31 +729,52 @@ function drawTeethChart(){
   updateLegend();
 }
 
+// 抜歯・萌出中など「歯全体を1色の丸で表示」する共通ヘルパー
+function drawWholeTooth(svg, num, cx, cy, r, fillColor, strokeColor, textColor, primaryFace, allFaces){
+  const circle = document.createElementNS('http://www.w3.org/2000/svg','circle');
+  Object.entries({cx,cy,r,fill:fillColor,stroke:strokeColor,'stroke-width':'2'}).forEach(([k,v])=>circle.setAttribute(k,v));
+  circle.setAttribute('data-tooth', num);
+  circle.setAttribute('data-face', primaryFace);
+  circle.style.cursor='pointer';
+  circle.addEventListener('click', e=>{
+    if(isDragging) return;
+    e.stopPropagation();
+    openToothPopup(num, primaryFace, '歯全体', allFaces);
+  });
+  svg.appendChild(circle);
+
+  const txt = document.createElementNS('http://www.w3.org/2000/svg','text');
+  Object.entries({x:cx,y:cy,'text-anchor':'middle','dominant-baseline':'middle',
+    'font-size':r*0.72,'font-weight':'700',fill:textColor,'font-family':'inherit'
+  }).forEach(([k,v])=>txt.setAttribute(k,v));
+  txt.setAttribute('data-tooth', num);
+  txt.setAttribute('data-face', primaryFace);
+  txt.style.cursor='pointer';
+  txt.style.pointerEvents='none'; // クリックはcircleで受ける
+  txt.textContent = TOOTH_LABEL[num]!==undefined ? TOOTH_LABEL[num] : num;
+  svg.appendChild(txt);
+}
+
 function drawTooth(svg, num, x, y, size){
   const isFront = FRONT_TEETH.has(num);
   const crown = isCrown(num);
   const extracted = isExtracted(num);
+  const erupting  = isErupting(num);
   const cx = x + size/2, cy = y + size/2, r = size/2 - 1;
 
-  // 抜歯: 黄色の塗りつぶし円だけ描画
+  // 抜歯: 黄色の塗りつぶし円
   if(extracted){
-    const circle = document.createElementNS('http://www.w3.org/2000/svg','circle');
-    Object.entries({cx,cy,r,fill:'#fff9c4',stroke:'#f5c800','stroke-width':'2'}).forEach(([k,v])=>circle.setAttribute(k,v));
-    // クリック用にdata属性はdrawFront/Molarと同様に付与
     const allFaces = isFront ? FRONT_FACES : MOLAR_FACES;
     const primaryFace = allFaces[0].id;
-    circle.setAttribute('data-tooth', num);
-    circle.setAttribute('data-face', primaryFace);
-    circle.style.cursor='pointer';
-    svg.appendChild(circle);
-    // 番号ラベル
-    const txt = document.createElementNS('http://www.w3.org/2000/svg','text');
-    Object.entries({x:cx,y:cy,'text-anchor':'middle','dominant-baseline':'middle','font-size':r*0.72,'font-weight':'700',fill:'#8a6700','font-family':'inherit'}).forEach(([k,v])=>txt.setAttribute(k,v));
-    txt.setAttribute('data-tooth', num);
-    txt.setAttribute('data-face', primaryFace);
-    txt.style.cursor='pointer';
-    txt.textContent = TOOTH_LABEL[num]!==undefined ? TOOTH_LABEL[num] : num;
-    svg.appendChild(txt);
+    drawWholeTooth(svg, num, cx, cy, r, '#fff9c4', '#f5c800', '#8a6700', primaryFace, allFaces);
+    return;
+  }
+
+  // 萌出中（歯が生えてる）: 赤い塗りつぶし円
+  if(erupting){
+    const allFaces = isFront ? FRONT_FACES : MOLAR_FACES;
+    const primaryFace = allFaces[0].id;
+    drawWholeTooth(svg, num, cx, cy, r, '#ffe8e8', '#e24b4a', '#a00000', primaryFace, allFaces);
     return;
   }
 
@@ -910,7 +938,7 @@ function toggleMissing(num){
 }
 
 function applyStatusToFace(num, faceId, allFaces, statusId){
-  if(statusId==='crown' || statusId==='extraction'){
+  if(statusId==='crown' || statusId==='extraction' || statusId==='erupting'){
     allFaces.forEach(f=>{ currentRecord.teethData[num+'_'+f.id]=statusId; });
   } else if(statusId==='normal'){
     delete currentRecord.teethData[num+'_'+faceId];
