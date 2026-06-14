@@ -85,6 +85,8 @@
   .status-btn.s-watch   {color:#ba7517;background:#fef3e2;border-color:#ef9f27;}
   .status-btn.s-filling {color:#5a3faa;background:#f0ebff;border-color:#8b6fd4;}
   .status-btn.s-crown   {color:#185fa5;background:#e4f0f8;border-color:#378add;}
+  .status-btn.s-sealant    {color:#0f6e56;background:#e0f7f0;border-color:#1d9e75;}
+  .status-btn.s-extraction {color:#8a6700;background:#fffbe0;border-color:#f5c800;}
 
   /* QRポップアップ */
   #qrPopup .popup{width:300px;text-align:center;}
@@ -185,20 +187,24 @@ const PATIENT_URL = "https://katomasa1031-alt.github.io/dental-note/patient.html
 // 歯の状態定義
 // ============================================================
 const STATUSES = [
-  {id:'normal',  label:'正常（クリア）', cls:'s-clear',   dot:'#ddd'},
-  {id:'cavity',  label:'虫歯',           cls:'s-cavity',  dot:'#e24b4a'},
-  {id:'treated', label:'治療済み',       cls:'s-treated', dot:'#1d9e75'},
-  {id:'watch',   label:'要注意',         cls:'s-watch',   dot:'#ef9f27'},
-  {id:'filling', label:'詰め物',         cls:'s-filling', dot:'#8b6fd4'},
-  {id:'crown',   label:'被せ物（全体）', cls:'s-crown',   dot:'#378add'},
+  {id:'normal',     label:'正常（クリア）', cls:'s-clear',      dot:'#ddd'},
+  {id:'cavity',     label:'虫歯',           cls:'s-cavity',     dot:'#e24b4a'},
+  {id:'treated',    label:'治療済み',       cls:'s-treated',    dot:'#1d9e75'},
+  {id:'watch',      label:'要注意',         cls:'s-watch',      dot:'#ef9f27'},
+  {id:'filling',    label:'詰め物',         cls:'s-filling',    dot:'#8b6fd4'},
+  {id:'crown',      label:'被せ物（全体）', cls:'s-crown',      dot:'#378add'},
+  {id:'sealant',    label:'シーラント',     cls:'s-sealant',    dot:'#1d9e75'},
+  {id:'extraction', label:'抜歯',           cls:'s-extraction', dot:'#f5c800'},
 ];
 const SC = {
-  normal:  {fill:'#ffffff',stroke:'#ccc'},
-  cavity:  {fill:'#fde8e8',stroke:'#e24b4a'},
-  treated: {fill:'#e8f5ee',stroke:'#1d9e75'},
-  watch:   {fill:'#fef3e2',stroke:'#ef9f27'},
-  filling: {fill:'#f0ebff',stroke:'#8b6fd4'},
-  crown:   {fill:'#e4f0f8',stroke:'#378add'},
+  normal:     {fill:'#ffffff',   stroke:'#ccc'},
+  cavity:     {fill:'#fde8e8',   stroke:'#e24b4a'},
+  treated:    {fill:'#e8f5ee',   stroke:'#1d9e75'},
+  watch:      {fill:'#fef3e2',   stroke:'#ef9f27'},
+  filling:    {fill:'#f0ebff',   stroke:'#8b6fd4'},
+  crown:      {fill:'#e4f0f8',   stroke:'#378add'},
+  sealant:    {fill:'#e0f7f0',   stroke:'#1d9e75'},
+  extraction: {fill:'#fff9c4',   stroke:'#f5c800'},
 };
 const CF='#378add', CS='#185fa5';
 
@@ -482,6 +488,10 @@ function isCrown(toothNum){
   const faces = FRONT_TEETH.has(toothNum) ? FRONT_FACES : MOLAR_FACES;
   return faces.every(f => (currentRecord.teethData[toothNum+'_'+f.id]||'normal')==='crown');
 }
+function isExtracted(toothNum){
+  const faces = FRONT_TEETH.has(toothNum) ? FRONT_FACES : MOLAR_FACES;
+  return faces.every(f => (currentRecord.teethData[toothNum+'_'+f.id]||'normal')==='extraction');
+}
 
 function drawTeethChart(){
   const svg = document.getElementById('teethChartSVG');
@@ -715,7 +725,30 @@ function drawTeethChart(){
 function drawTooth(svg, num, x, y, size){
   const isFront = FRONT_TEETH.has(num);
   const crown = isCrown(num);
+  const extracted = isExtracted(num);
   const cx = x + size/2, cy = y + size/2, r = size/2 - 1;
+
+  // 抜歯: 黄色の塗りつぶし円だけ描画
+  if(extracted){
+    const circle = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    Object.entries({cx,cy,r,fill:'#fff9c4',stroke:'#f5c800','stroke-width':'2'}).forEach(([k,v])=>circle.setAttribute(k,v));
+    // クリック用にdata属性はdrawFront/Molarと同様に付与
+    const allFaces = isFront ? FRONT_FACES : MOLAR_FACES;
+    const primaryFace = allFaces[0].id;
+    circle.setAttribute('data-tooth', num);
+    circle.setAttribute('data-face', primaryFace);
+    circle.style.cursor='pointer';
+    svg.appendChild(circle);
+    // 番号ラベル
+    const txt = document.createElementNS('http://www.w3.org/2000/svg','text');
+    Object.entries({x:cx,y:cy,'text-anchor':'middle','dominant-baseline':'middle','font-size':r*0.72,'font-weight':'700',fill:'#8a6700','font-family':'inherit'}).forEach(([k,v])=>txt.setAttribute(k,v));
+    txt.setAttribute('data-tooth', num);
+    txt.setAttribute('data-face', primaryFace);
+    txt.style.cursor='pointer';
+    txt.textContent = TOOTH_LABEL[num]!==undefined ? TOOTH_LABEL[num] : num;
+    svg.appendChild(txt);
+    return;
+  }
 
   if(isFront){
     drawFrontTooth(svg, num, cx, cy, r, crown);
@@ -877,8 +910,8 @@ function toggleMissing(num){
 }
 
 function applyStatusToFace(num, faceId, allFaces, statusId){
-  if(statusId==='crown'){
-    allFaces.forEach(f=>{ currentRecord.teethData[num+'_'+f.id]='crown'; });
+  if(statusId==='crown' || statusId==='extraction'){
+    allFaces.forEach(f=>{ currentRecord.teethData[num+'_'+f.id]=statusId; });
   } else if(statusId==='normal'){
     delete currentRecord.teethData[num+'_'+faceId];
   } else {
