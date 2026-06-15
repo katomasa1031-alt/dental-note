@@ -85,7 +85,7 @@
   .status-btn.s-watch   {color:#ba7517;background:#fef3e2;border-color:#ef9f27;}
   .status-btn.s-filling {color:#5a3faa;background:#f0ebff;border-color:#8b6fd4;}
   .status-btn.s-crown   {color:#185fa5;background:#e4f0f8;border-color:#378add;}
-  .status-btn.s-sealant    {color:#9b1a40;background:#ffe0eb;border-color:#e05080;}
+  .status-btn.s-sealant    {color:#0f6e56;background:#e0f7ef;border-color:#2d9c63;}
   .status-btn.s-extraction {color:#fff;background:#222;border-color:#000;}
   .status-btn.s-erupting   {color:#7a6500;background:#fffacd;border-color:#d4b800;}
 
@@ -207,7 +207,7 @@ const STATUSES = [
   {id:'watch',      label:'要注意',         cls:'s-watch',      dot:'#ef9f27'},
   {id:'filling',    label:'詰め物',         cls:'s-filling',    dot:'#8b6fd4'},
   {id:'crown',      label:'被せ物（全体）', cls:'s-crown',      dot:'#378add'},
-  {id:'sealant',    label:'シーラント',     cls:'s-sealant',    dot:'#e05080'},
+  {id:'sealant',    label:'シーラント',     cls:'s-sealant',    dot:'#2d9c63'},
   {id:'extraction', label:'抜歯',           cls:'s-extraction', dot:'#222'},
   {id:'erupting',   label:'歯が生えてる',   cls:'s-erupting',   dot:'#d4b800'},
 ];
@@ -218,7 +218,7 @@ const SC = {
   watch:      {fill:'#fef3e2',   stroke:'#ef9f27'},
   filling:    {fill:'#f0ebff',   stroke:'#8b6fd4'},
   crown:      {fill:'#e4f0f8',   stroke:'#378add'},
-  sealant:    {fill:'#ffb7c5',   stroke:'#e05080'},
+  sealant:    {fill:'#b5ead7',   stroke:'#2d9c63'},
   extraction: {fill:'#222222',   stroke:'#000'},
   erupting:   {fill:'#fffacd',   stroke:'#d4b800'},
 };
@@ -857,7 +857,7 @@ function drawTooth(svg, num, x, y, size){
   if(sealant){
     const allFaces = isFront ? FRONT_FACES : MOLAR_FACES;
     const primaryFace = allFaces[0].id;
-    drawWholeTooth(svg, num, cx, cy, r, '#ffb7c5', '#e05080', '#9b1a40', primaryFace, allFaces);
+    drawWholeTooth(svg, num, cx, cy, r, '#b5ead7', '#2d9c63', '#0f6e56', primaryFace, allFaces);
     return;
   }
 
@@ -1021,12 +1021,23 @@ function toggleMissing(num){
 }
 
 function applyStatusToFace(num, faceId, allFaces, statusId){
+  // 全面一括ステータス（抜歯・萌出中・シーラント・被せ物）なら全面に適用
   if(statusId==='crown' || statusId==='extraction' || statusId==='erupting' || statusId==='sealant'){
     allFaces.forEach(f=>{ currentRecord.teethData[num+'_'+f.id]=statusId; });
-  } else if(statusId==='normal'){
-    delete currentRecord.teethData[num+'_'+faceId];
   } else {
-    currentRecord.teethData[num+'_'+faceId]=statusId;
+    // 面単位のステータスに変更するとき：
+    // 現在その歯が全面一括ステータスなら、まず全面をクリアしてから1面だけ適用
+    const wholeStatuses = ['extraction','erupting','sealant','crown'];
+    const currentWhole = currentRecord.teethData[num+'_'+allFaces[0].id];
+    if(currentWhole && wholeStatuses.includes(currentWhole)){
+      // 全面クリア
+      allFaces.forEach(f=>{ delete currentRecord.teethData[num+'_'+f.id]; });
+    }
+    if(statusId==='normal'){
+      delete currentRecord.teethData[num+'_'+faceId];
+    } else {
+      currentRecord.teethData[num+'_'+faceId]=statusId;
+    }
   }
 }
 
