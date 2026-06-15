@@ -81,13 +81,13 @@
   .status-btn:hover{border-color:var(--accent);}
   .status-btn.s-clear   {}
   .status-btn.s-cavity  {color:#c03030;background:#fde8e8;border-color:#e24b4a;}
-  .status-btn.s-treated {color:#0f6e56;background:#e8f5ee;border-color:#1d9e75;}
+  .status-btn.s-treated {color:#222;background:#eee;border-color:#444;}
   .status-btn.s-watch   {color:#ba7517;background:#fef3e2;border-color:#ef9f27;}
   .status-btn.s-filling {color:#5a3faa;background:#f0ebff;border-color:#8b6fd4;}
   .status-btn.s-crown   {color:#185fa5;background:#e4f0f8;border-color:#378add;}
-  .status-btn.s-sealant    {color:#0f6e56;background:#e0f7f0;border-color:#1d9e75;}
-  .status-btn.s-extraction {color:#8a6700;background:#fffbe0;border-color:#f5c800;}
-  .status-btn.s-erupting   {color:#a00000;background:#ffe8e8;border-color:#e24b4a;}
+  .status-btn.s-sealant    {color:#9b1a40;background:#ffe0eb;border-color:#e05080;}
+  .status-btn.s-extraction {color:#fff;background:#222;border-color:#000;}
+  .status-btn.s-erupting   {color:#7a6500;background:#fffacd;border-color:#d4b800;}
 
   /* QRポップアップ */
   #qrPopup .popup{width:300px;text-align:center;}
@@ -203,24 +203,24 @@ const PATIENT_URL = "https://katomasa1031-alt.github.io/dental-note/patient.html
 const STATUSES = [
   {id:'normal',     label:'正常（クリア）', cls:'s-clear',      dot:'#ddd'},
   {id:'cavity',     label:'虫歯',           cls:'s-cavity',     dot:'#e24b4a'},
-  {id:'treated',    label:'治療済み',       cls:'s-treated',    dot:'#1d9e75'},
+  {id:'treated',    label:'治療済み',       cls:'s-treated',    dot:'#444'},
   {id:'watch',      label:'要注意',         cls:'s-watch',      dot:'#ef9f27'},
   {id:'filling',    label:'詰め物',         cls:'s-filling',    dot:'#8b6fd4'},
   {id:'crown',      label:'被せ物（全体）', cls:'s-crown',      dot:'#378add'},
-  {id:'sealant',    label:'シーラント',     cls:'s-sealant',    dot:'#1d9e75'},
-  {id:'extraction', label:'抜歯',           cls:'s-extraction', dot:'#f5c800'},
-  {id:'erupting',   label:'歯が生えてる',   cls:'s-erupting',   dot:'#e24b4a'},
+  {id:'sealant',    label:'シーラント',     cls:'s-sealant',    dot:'#e05080'},
+  {id:'extraction', label:'抜歯',           cls:'s-extraction', dot:'#222'},
+  {id:'erupting',   label:'歯が生えてる',   cls:'s-erupting',   dot:'#d4b800'},
 ];
 const SC = {
   normal:     {fill:'#ffffff',   stroke:'#ccc'},
   cavity:     {fill:'#fde8e8',   stroke:'#e24b4a'},
-  treated:    {fill:'#e8f5ee',   stroke:'#1d9e75'},
+  treated:    {fill:'url(#hatch45)', stroke:'#444'},
   watch:      {fill:'#fef3e2',   stroke:'#ef9f27'},
   filling:    {fill:'#f0ebff',   stroke:'#8b6fd4'},
   crown:      {fill:'#e4f0f8',   stroke:'#378add'},
-  sealant:    {fill:'#e0f7f0',   stroke:'#1d9e75'},
-  extraction: {fill:'#fff9c4',   stroke:'#f5c800'},
-  erupting:   {fill:'#ffe8e8',   stroke:'#e24b4a'},
+  sealant:    {fill:'#ffb7c5',   stroke:'#e05080'},
+  extraction: {fill:'#222222',   stroke:'#000'},
+  erupting:   {fill:'#fffacd',   stroke:'#d4b800'},
 };
 const CF='#378add', CS='#185fa5';
 
@@ -563,11 +563,21 @@ function isErupting(toothNum){
   const faces = FRONT_TEETH.has(toothNum) ? FRONT_FACES : MOLAR_FACES;
   return faces.every(f => (currentRecord.teethData[toothNum+'_'+f.id]||'normal')==='erupting');
 }
+function isSealant(toothNum){
+  const faces = FRONT_TEETH.has(toothNum) ? FRONT_FACES : MOLAR_FACES;
+  return faces.every(f => (currentRecord.teethData[toothNum+'_'+f.id]||'normal')==='sealant');
+}
 
 function drawTeethChart(){
   const svg = document.getElementById('teethChartSVG');
   if(!svg) return;
   svg.innerHTML='';
+  // 網掛けパターン定義（治療済み）
+  svg.innerHTML = `<defs>
+    <pattern id="hatch45" patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(45)">
+      <line x1="0" y1="0" x2="0" y2="6" stroke="#444" stroke-width="1.2"/>
+    </pattern>
+  </defs>`;
 
   // ドラッグ選択: SVG上でmousedown→mousemoveで複数面に適用
   // ドラッグ選択
@@ -824,21 +834,30 @@ function drawTooth(svg, num, x, y, size){
   const crown = isCrown(num);
   const extracted = isExtracted(num);
   const erupting  = isErupting(num);
+  const sealant   = isSealant(num);
   const cx = x + size/2, cy = y + size/2, r = size/2 - 1;
 
-  // 抜歯: 黄色の塗りつぶし円
+  // 抜歯: 黒塗りつぶし・テキスト白
   if(extracted){
     const allFaces = isFront ? FRONT_FACES : MOLAR_FACES;
     const primaryFace = allFaces[0].id;
-    drawWholeTooth(svg, num, cx, cy, r, '#fff9c4', '#f5c800', '#8a6700', primaryFace, allFaces);
+    drawWholeTooth(svg, num, cx, cy, r, '#222222', '#000', '#ffffff', primaryFace, allFaces);
     return;
   }
 
-  // 萌出中（歯が生えてる）: 赤い塗りつぶし円
+  // 萌出中（歯が生えてる）: 薄黄色塗りつぶし
   if(erupting){
     const allFaces = isFront ? FRONT_FACES : MOLAR_FACES;
     const primaryFace = allFaces[0].id;
-    drawWholeTooth(svg, num, cx, cy, r, '#ffe8e8', '#e24b4a', '#a00000', primaryFace, allFaces);
+    drawWholeTooth(svg, num, cx, cy, r, '#fffacd', '#d4b800', '#7a6500', primaryFace, allFaces);
+    return;
+  }
+
+  // シーラント: ピンク塗りつぶし・歯全体
+  if(sealant){
+    const allFaces = isFront ? FRONT_FACES : MOLAR_FACES;
+    const primaryFace = allFaces[0].id;
+    drawWholeTooth(svg, num, cx, cy, r, '#ffb7c5', '#e05080', '#9b1a40', primaryFace, allFaces);
     return;
   }
 
@@ -1002,7 +1021,7 @@ function toggleMissing(num){
 }
 
 function applyStatusToFace(num, faceId, allFaces, statusId){
-  if(statusId==='crown' || statusId==='extraction' || statusId==='erupting'){
+  if(statusId==='crown' || statusId==='extraction' || statusId==='erupting' || statusId==='sealant'){
     allFaces.forEach(f=>{ currentRecord.teethData[num+'_'+f.id]=statusId; });
   } else if(statusId==='normal'){
     delete currentRecord.teethData[num+'_'+faceId];
